@@ -10,5 +10,5 @@ SET GOOS=linux
 SET GOARCH=386
 echo build for %GOOS%^<%GOARCH%^>
 go build -o billing .
-echo run test ...
-billing.exe
+echo build complete
+pause
