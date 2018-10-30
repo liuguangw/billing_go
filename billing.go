@@ -7,7 +7,10 @@ import(
 	"encoding/json"
 	"net"
 	"strconv"
+	//"fmt"
 )
+// 日志文件保存目录
+var logFilePath string = "log.log"
 func main()  {
 	// 获取config.json文件绝对路径
 	mainAppPath,err:=filepath.Abs(os.Args[0])
@@ -16,6 +19,7 @@ func main()  {
 		return
 	}
 	configFilePath:=filepath.Join(filepath.Dir(mainAppPath),"config.json")
+	logFilePath=filepath.Join(filepath.Dir(mainAppPath),"log.log")
 	// 读取配置文件内容
 	jsonBytes, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
@@ -25,12 +29,14 @@ func main()  {
 	// debug输出json内容
 	//fmt.Printf("content:%s\n",jsonBytes)
 	var serverConfig ServerConfig
+	// 默认开启自动注册
+	serverConfig.Auto_reg = true
 	err = json.Unmarshal(jsonBytes, &serverConfig)
 	if err !=nil {
 		showErrorInfo("parse json failed",err)
 		return
 	}
-	//logMessage("test")
+	logMessage("powered by liuguang @github https://github.com/liuguangw")
 	//fmt.Println(serverConfig)
 	runBilling(&serverConfig)
 }

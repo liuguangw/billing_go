@@ -7,6 +7,7 @@ import(
 	"runtime"
 	"database/sql"
 	"bytes"
+	"os"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -18,8 +19,9 @@ type ServerConfig struct {
 	Db_port int
 	Db_user string
 	Db_password string
-    Db_name string
-    Allow_ips []string
+	Db_name string
+	Auto_reg bool
+	Allow_ips []string
 }
 
 type BillingData struct{
@@ -51,7 +53,18 @@ func (billingData *BillingData)PackData()[]byte{
 	result = append(result,maskData[0])
 	return result
 }
-
+//记录日志到文件
+func logToFile(str string){
+	// If the file doesn't exist, create it, or append to the file
+	f, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	if _, err := f.Write([]byte(str+"\n")); err != nil {
+		return
+	}
+}
 //显示日志
 func logMessage(str string){
 	str = "[log]["+time.Now().Format("2006-01-02 15:04:05")+"] "+str
@@ -61,6 +74,7 @@ func logMessage(str string){
 	}else{
 		fmt.Println(str)
 	}
+	logToFile(str)
 }
 
 //用于显示错误消息文本
@@ -72,6 +86,7 @@ func showErrorInfoStr(str string){
 	}else{
 		fmt.Println(str)
 	}
+	logToFile(str)
 }
 
 //显示错误消息

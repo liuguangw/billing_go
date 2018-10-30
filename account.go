@@ -5,14 +5,14 @@ import(
 
 // 用户信息结构
 type Account struct {
-	id         int
+	id         int32
 	name       string
 	password   string
 	question   sql.NullString
 	answer     sql.NullString
 	email      sql.NullString
 	qq         sql.NullString
-	point      int
+	point      int32
 	is_online  byte
 	is_lock    byte
 }
@@ -83,4 +83,19 @@ func getRegisterResult(db *sql.DB,username string,password string,superPassword 
 		return regErr
 	}
 	return 1
+}
+
+// 更新在线状态
+func updateOnlineStatus(db *sql.DB,username string,isOnline bool)error{
+	stmt, err := db.Prepare("UPDATE account SET is_online=? WHERE name=?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	var is_online byte = 0
+	if isOnline {
+		is_online = 1
+	}
+	_, err = stmt.Exec(is_online,username)
+	return err
 }

@@ -2,7 +2,7 @@ package main
 import(
 	"net"
 	"io"
-	"fmt"
+	//"fmt"
 	"strings"
 	"database/sql"
 )
@@ -58,10 +58,10 @@ func handleConnection(serverConfig *ServerConfig,db *sql.DB,conn *net.TCPConn){
 		}else if resultMask == 0 {
 			// 将已经读取到的数据移出
 			clientData=clientData[packLength:]
-			logMessage("get billingData ok")
-			fmt.Println(billingData)
+			//logMessage("get billingData ok")
+			//fmt.Println(billingData)
 			// 处理读取到的请求
-			err = bProcessRequest(billingData,db,conn)
+			err = bProcessRequest(billingData,db,conn,serverConfig)
 			if err!=nil {
 				showErrorInfo("process request failed",err)
 			}
