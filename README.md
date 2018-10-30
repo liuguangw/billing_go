@@ -9,6 +9,10 @@
 
 - Windows 7, Server 2008R2 或者更高版本
 
+##### 下载地址:
+
+[https://github.com/liuguangw/billing_go/releases](https://github.com/liuguangw/billing_go/releases)
+
 #### 编译方法
 建议在Windows下编译，首先需要安装好go开发环境，然后安装mysql所需的go语言库
 
@@ -22,7 +26,7 @@ go get -u github.com/go-sql-driver/mysql
 ```
 billing       - linux版本的billing服务器
 billing.exe   - windows版本的
-config。json  - 配置文件
+config.json  - 配置文件
 ```
 
 #### 部署方法
