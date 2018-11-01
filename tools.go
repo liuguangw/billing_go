@@ -135,6 +135,9 @@ func initMysql(config *ServerConfig) (*sql.DB, error) {
 		lockFieldName   = "is_lock"
 	)
 	rows, err = db.Query("SHOW COLUMNS FROM account")
+	if err != nil {
+		return db, err
+	}
 	for rows.Next() {
 		var (
 			fieldName string

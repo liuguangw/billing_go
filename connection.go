@@ -8,7 +8,7 @@ import (
 )
 
 //处理客户端连接
-func handleConnection(serverConfig *ServerConfig, db *sql.DB, conn *net.TCPConn) {
+func handleConnection(serverConfig *ServerConfig, db *sql.DB, conn *net.TCPConn, ln *net.TCPListener) {
 	var remoteAddr = conn.RemoteAddr().String()
 	var clientIP = remoteAddr[:strings.LastIndex(remoteAddr, ":")]
 	// 当数组不为空时,只允许指定的ip连接
@@ -39,7 +39,7 @@ func handleConnection(serverConfig *ServerConfig, db *sql.DB, conn *net.TCPConn)
 			if err == io.EOF {
 				// 断开连接
 				logMessage("client ip " + clientIP + " disconnected")
-			} else {
+			} else if !serverStoped {
 				// 读取错误
 				showErrorInfo("read error", err)
 			}
@@ -61,7 +61,7 @@ func handleConnection(serverConfig *ServerConfig, db *sql.DB, conn *net.TCPConn)
 			//logMessage("get billingData ok")
 			//fmt.Println(billingData)
 			// 处理读取到的请求
-			err = bProcessRequest(billingData, db, conn, serverConfig)
+			err = bProcessRequest(billingData, db, conn, serverConfig, ln)
 			if err != nil {
 				showErrorInfo("process request failed", err)
 			}

@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, serverConfig *ServerConfig) error {
+func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, serverConfig *ServerConfig, ln *net.TCPListener) error {
 	var (
 		err error
 		// 响应的负载数据
@@ -15,6 +15,8 @@ func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, se
 		requestHandled = true
 	)
 	switch billingData.opType {
+	case 0x00:
+		opData, err = bHandleCloseServer(billingData, ln)
 	case 0xA0:
 		opData, err = bHandleConnect(billingData)
 	case 0xA1:
@@ -60,6 +62,14 @@ func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, se
 		}
 	}
 	return nil
+}
+
+//0x00
+func bHandleCloseServer(billingData *BillingData, ln *net.TCPListener) ([]byte, error) {
+	var opData = []byte{0x00, 0x00}
+	serverStoped = true
+	ln.Close()
+	return opData, nil
 }
 
 //0xA0

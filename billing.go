@@ -12,6 +12,9 @@ import (
 // 日志文件保存目录
 var logFilePath = "log.log"
 
+// 是否已停止
+var serverStoped = true
+
 func main() {
 	//当前程序的绝对路径
 	mainAppPath, err := filepath.Abs(os.Args[0])
@@ -39,8 +42,15 @@ func main() {
 		showErrorInfo("parse json failed", err)
 		return
 	}
-	logMessage("powered by liuguang @github https://github.com/liuguangw")
 	//fmt.Println(serverConfig)
+	if len(os.Args) > 1 {
+		commandStr := os.Args[1]
+		if commandStr == "stop" {
+			stopBilling(&serverConfig)
+			return
+		}
+	}
+	logMessage("powered by liuguang @github https://github.com/liuguangw")
 	runBilling(&serverConfig)
 }
 
@@ -65,13 +75,45 @@ func runBilling(config *ServerConfig) {
 		return
 	}
 	logMessage("billing server run at " + listenAddress)
+	serverStoped = false
 	for {
 		conn, err := ln.AcceptTCP()
 		if err != nil {
 			// handle error
-			showErrorInfo("accept client failed", err)
-			continue
+			if !serverStoped {
+				showErrorInfo("accept client failed", err)
+				continue
+			} else {
+				// 服务端停止
+				logMessage("billing server stoped ok")
+				return
+			}
 		}
-		go handleConnection(config, db, conn)
+		go handleConnection(config, db, conn, ln)
+	}
+}
+
+func stopBilling(config *ServerConfig) {
+
+	listenAddress := config.Ip + ":" + strconv.Itoa(config.Port)
+	serverEndpoint, err := net.ResolveTCPAddr("tcp", listenAddress)
+	if err != nil {
+		showErrorInfo("resolve TCPAddr failed", err)
+		return
+	}
+	conn, err := net.DialTCP("tcp", nil, serverEndpoint)
+	if err != nil {
+		showErrorInfo("connect to billing error", err)
+		return
+	}
+	defer conn.Close()
+	var sendData BillingData
+	sendData.msgID = [2]byte{0, 0}
+	sendData.opType = 0
+	logMessage("stoping billing server ...")
+	_, err = conn.Write(sendData.PackData())
+	if err != nil {
+		showErrorInfo("stop billing failed", err)
+		return
 	}
 }
