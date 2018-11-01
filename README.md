@@ -80,3 +80,9 @@ chmod a+x ./billing
 ./billing &
 ```
 
+停止billing命令
+
+```bash
+./billing stop
+```
+
