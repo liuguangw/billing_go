@@ -101,14 +101,21 @@ func showErrorInfo(tipText string, err error) {
 
 //initMysql MySQL状态检测和字段初始化
 func initMysql(config *ServerConfig) (*sql.DB, error) {
-	//user:password@tcp(localhost:3306)/dbname?charset=utf8
-	db, err := sql.Open("mysql", config.Db_user+":"+config.Db_password+"@tcp("+config.Db_host+":"+strconv.Itoa(config.Db_port)+")/"+config.Db_name+"?charset=utf8")
+	//user:password@tcp(localhost:3306)/dbname?charset=utf8....
+	extraParams := "?charset=utf8&timeout=1s&readTimeout=1s&writeTimeout=1s"
+	db, err := sql.Open("mysql", config.Db_user+":"+config.Db_password+"@tcp("+config.Db_host+":"+strconv.Itoa(config.Db_port)+")/"+config.Db_name+extraParams)
 	if err != nil {
 		return db, err
 	}
 	// 最大100个连接，最多闲置10个
 	db.SetMaxOpenConns(100)
 	db.SetMaxIdleConns(10)
+	// 连接池连接存活时长
+	maxLifeTime, err := time.ParseDuration("30m")
+	if err != nil {
+		return db, err
+	}
+	db.SetConnMaxLifetime(maxLifeTime)
 	// 判断连接状态
 	err = db.Ping()
 	if err != nil {

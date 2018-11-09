@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"time"
 )
 
 //Account 用户信息结构
@@ -21,9 +22,12 @@ type Account struct {
 // 第二个返回值 0表示查询不到此用户名的记录 1表示查询成功 2表示数据库异常
 func getAccountByUsername(db *sql.DB, username string) (*Account, byte) {
 	var account Account
+	queryT0 := time.Now()
 	rows, err := db.Query("SELECT id,name,password"+
 		",question,answer,email,qq,point,is_online,is_lock"+
 		" FROM account WHERE name=?", username)
+	queryT1 := time.Now()
+	logMessage("getAccountByUsername<" + username + "> query time: " + queryT1.Sub(queryT0).String())
 	if err != nil {
 		return &account, 2
 	}
@@ -76,12 +80,15 @@ func getRegisterResult(db *sql.DB, username string, password string, superPasswo
 		// 数据库异常
 		return regErr
 	}
+	queryT0 := time.Now()
 	stmt, err := db.Prepare("INSERT INTO account (name, password, question, email) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return regErr
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(username, password, superPassword, email)
+	queryT1 := time.Now()
+	logMessage("register<" + username + "> exec time: " + queryT1.Sub(queryT0).String())
 	if err != nil {
 		return regErr
 	}
@@ -90,6 +97,7 @@ func getRegisterResult(db *sql.DB, username string, password string, superPasswo
 
 // 更新在线状态
 func updateOnlineStatus(db *sql.DB, username string, isOnline bool) error {
+	queryT0 := time.Now()
 	stmt, err := db.Prepare("UPDATE account SET is_online=? WHERE name=?")
 	if err != nil {
 		return err
@@ -100,5 +108,7 @@ func updateOnlineStatus(db *sql.DB, username string, isOnline bool) error {
 		onlineStatus = 1
 	}
 	_, err = stmt.Exec(onlineStatus, username)
+	queryT1 := time.Now()
+	logMessage("updateOnlineStatus<" + username + "> query time: " + queryT1.Sub(queryT0).String())
 	return err
 }
