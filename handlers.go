@@ -258,7 +258,7 @@ func bHandleCheckPoint(billingData *BillingData, db *sql.DB) ([]byte, error) {
 	if queryOp == 1 {
 		accountPoint = (account.point + 1) * 1000
 	}
-	logMessage(fmt.Sprintf("user [%v] %v check point (%v) at %v", string(username), charName, accountPoint, loginIP))
+	logMessage(fmt.Sprintf("user [%v] %v check point (%v) at %v", string(username), charName, account.point, loginIP))
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	var tmpByte byte
