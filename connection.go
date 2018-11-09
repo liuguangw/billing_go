@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"strings"
+	"time"
 )
 
 //处理客户端连接
@@ -26,7 +27,12 @@ func handleConnection(serverConfig *ServerConfig, db *sql.DB, conn *net.TCPConn,
 			return
 		}
 	}
+	//保持socket长连接
 	conn.SetKeepAlive(true)
+	keepAlivePeriod, err := time.ParseDuration("30s")
+	if err == nil {
+		conn.SetKeepAlivePeriod(keepAlivePeriod)
+	}
 	logMessage("client ip " + clientIP + " connected")
 	// 定义客户端传入的所有数据
 	var clientData []byte
