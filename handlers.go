@@ -39,8 +39,12 @@ func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, se
 		opData, err = bHandleKick(billingData)
 	case 0xE2:
 		opData, err = bHandleCheckPoint(billingData, db)
+	case 0xC5:
+		////元宝消费记录 无回复
+		requestHandled = false
 	default:
 		requestHandled = false
+		showErrorInfoStr(fmt.Sprintf("unknown opType 0x%x",int(billingData.opType)))
 	}
 	if requestHandled {
 		if err != nil {
@@ -84,7 +88,7 @@ func bHandlePing(billingData *BillingData) ([]byte, error) {
 	// WorldId: 2u
 	// PlayerCount: 2u
 	//
-	var opData = []byte{0x01, 0x00}
+	var opData = []byte{0x20, 0x00}
 	return opData, nil
 }
 
@@ -93,13 +97,28 @@ func bHandleKeep(billingData *BillingData) ([]byte, error) {
 	// username Length: 1u
 	// username: *u
 	// player level: 2u
-	// other : 8u
-	//
+	// start time : 4u
+	// endtime: 4u
 	usernameLength := billingData.opData[0]
 	username := billingData.opData[1 : 1+usernameLength]
+	offset := 1+usernameLength
+	playerLevel := uint16(billingData.opData[offset])
+	offset++
+	playerLevel += uint16(billingData.opData[offset])
+	logMessage(fmt.Sprintf("keep: user [%v] level %v", string(username), playerLevel))
 	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
+	extraData:=[]byte{
+		//result
+		0x01,
+		//剩余时间(这个值未用到填充即可)
+		0x00,0x00,0x00,0x00,
+		//商店点数(这个值未用到填充即可)
+		0x00,0x00,0x00,0x00,
+		//用户剩余点数(这个值未用到填充即可)
+		0x00,0x00,0x00,0x00}
+	opData = append(opData,extraData...);
 	return opData, nil
 }
 
@@ -112,6 +131,10 @@ func bHandleLogin(billingData *BillingData, db *sql.DB, allowAutoReg bool) ([]by
 	// password: *u
 	// ip Length: 1u
 	// ip: *u
+	// userLevel: 2u
+	// miBaoKey: *u
+	// miBaoValue: *u
+	// mac md5: 32u
 	offset := 0
 	usernameLength := billingData.opData[offset]
 	tmpLength := int(usernameLength)
@@ -197,8 +220,18 @@ func bHandleEnterGame(billingData *BillingData, db *sql.DB) ([]byte, error) {
 	logMessage("user [" + string(username) + "] " + charName + " entered game")
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
-	var pResult byte = 1
-	opData = append(opData, pResult)
+	extraData:=[]byte{
+		//result
+		0x01,
+		//计费类型(这个值未用到填充即可)
+		0x00,
+		//剩余时间(这个值未用到填充即可)
+		0x00,0x00,0x00,0x00,
+		//商店点数(这个值未用到填充即可)
+		0x00,0x00,0x00,0x00,
+		//用户剩余点数(这个值未用到填充即可)
+		0x00,0x00,0x00,0x00}
+	opData = append(opData,extraData...);
 	return opData, nil
 }
 
