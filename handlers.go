@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
+	"time"
 )
 
 func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, serverConfig *ServerConfig, ln *net.TCPListener) error {
@@ -14,6 +15,7 @@ func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, se
 		// 标记是否处理了本次请求
 		requestHandled = true
 	)
+	requestTime := time.Now()
 	switch billingData.opType {
 	case 0x00:
 		opData, err = bHandleCloseServer(billingData, ln)
@@ -47,6 +49,10 @@ func bProcessRequest(billingData *BillingData, db *sql.DB, conn *net.TCPConn, se
 		showErrorInfoStr(fmt.Sprintf("unknown opType 0x%x",int(billingData.opType)))
 	}
 	if requestHandled {
+		//ping的响应时间忽略
+		if billingData.opType != 0xA1 {
+			logMessage("response in : " + time.Now().Sub(requestTime).String())
+		}
 		if err != nil {
 			// 处理请求出错
 			showErrorInfo("process request failed", err)
@@ -88,7 +94,7 @@ func bHandlePing(billingData *BillingData) ([]byte, error) {
 	// WorldId: 2u
 	// PlayerCount: 2u
 	//
-	var opData = []byte{0x20, 0x00}
+	var opData = []byte{0x01, 0x00}
 	return opData, nil
 }
 
@@ -109,16 +115,7 @@ func bHandleKeep(billingData *BillingData) ([]byte, error) {
 	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
-	extraData:=[]byte{
-		//result
-		0x01,
-		//剩余时间(这个值未用到填充即可)
-		0x00,0x00,0x00,0x00,
-		//商店点数(这个值未用到填充即可)
-		0x00,0x00,0x00,0x00,
-		//用户剩余点数(这个值未用到填充即可)
-		0x00,0x00,0x00,0x00}
-	opData = append(opData,extraData...);
+	opData = append(opData,0x1);
 	return opData, nil
 }
 
@@ -220,18 +217,7 @@ func bHandleEnterGame(billingData *BillingData, db *sql.DB) ([]byte, error) {
 	logMessage("user [" + string(username) + "] " + charName + " entered game")
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
-	extraData:=[]byte{
-		//result
-		0x01,
-		//计费类型(这个值未用到填充即可)
-		0x00,
-		//剩余时间(这个值未用到填充即可)
-		0x00,0x00,0x00,0x00,
-		//商店点数(这个值未用到填充即可)
-		0x00,0x00,0x00,0x00,
-		//用户剩余点数(这个值未用到填充即可)
-		0x00,0x00,0x00,0x00}
-	opData = append(opData,extraData...);
+	opData = append(opData,0x1);
 	return opData, nil
 }
 
