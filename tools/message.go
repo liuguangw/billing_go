@@ -10,11 +10,6 @@ import (
 var logFilePath = ""
 // 基本的显示消息功能
 func showMessageBase(str string, isError bool) {
-	msgTag := "[log]"
-	if isError {
-		msgTag = "[error]"
-	}
-	str = msgTag + "[" + time.Now().Format("2006-01-02 15:04:05") + "] " + str
 	if runtime.GOOS == "linux" {
 		if isError {
 			// linux下用红色显示错误信息
@@ -53,16 +48,26 @@ func logToFile(str string) {
 	}
 }
 
+func formatMessageString(str string, isError bool) string {
+	msgTag := "[log]"
+	if isError {
+		msgTag = "[err]"
+	}
+	return msgTag + "[" + time.Now().Format("2006-01-02 15:04:05") + "] " + str
+}
+
 //显示日志
 func LogMessage(str string) {
-	showMessageBase(str, false)
-	logToFile(str)
+	msg := formatMessageString(str, false)
+	showMessageBase(msg, false)
+	logToFile(msg)
 }
 
 //用于显示错误消息文本
 func ShowErrorInfoStr(str string) {
-	showMessageBase(str, true)
-	logToFile(str)
+	msg := formatMessageString(str, true)
+	showMessageBase(msg, true)
+	logToFile(msg)
 }
 
 //显示错误消息

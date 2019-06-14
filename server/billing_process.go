@@ -8,7 +8,8 @@ import (
 	"net"
 )
 
-func processBillingData(request *bhandler.BillingData, db *sql.DB, conn *net.TCPConn, handlers []bhandler.BillingHandler) error {
+func processBillingData(request *bhandler.BillingData, db *sql.DB, conn *net.TCPConn,
+	handlers []bhandler.BillingHandler) error {
 	var response *bhandler.BillingData = nil
 	for _, handler := range handlers {
 		if request.OpType == handler.GetType() {
@@ -25,7 +26,8 @@ func processBillingData(request *bhandler.BillingData, db *sql.DB, conn *net.TCP
 		}
 	} else {
 		//无法处理当前请求类型
-		tools.ShowErrorInfoStr(fmt.Sprintf("unknown opType 0x%x, opData %v", int(request.OpType), request.OpData))
+		tools.ShowErrorInfoStr(fmt.Sprintf("unknown BillingData \n\tOpType: 0x%X \n\tOpData: %v",
+			int(request.OpType), request.OpData))
 	}
 	return nil
 }

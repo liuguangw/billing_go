@@ -36,14 +36,13 @@ func GetConnection(config *config.ServerConfig) (db *sql.DB, dbVersion string, e
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	if rows.Next() {
 		err = rows.Scan(&dbVersion)
 		if err != nil {
-			_ = rows.Close()
 			return
 		}
 	} else {
-		_ = rows.Close()
 		return
 	}
 	// 额外字段的存在性初始化
@@ -56,9 +55,7 @@ func GetConnection(config *config.ServerConfig) (db *sql.DB, dbVersion string, e
 	if err != nil {
 		return
 	}
-	defer func(r *sql.Rows) {
-		_ = r.Close()
-	}(rows)
+	defer rows.Close()
 	for rows.Next() {
 		var (
 			fieldName string

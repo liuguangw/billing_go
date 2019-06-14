@@ -56,7 +56,7 @@ func handleConnection(serverConfig *config.ServerConfig, db *sql.DB, conn *net.T
 				tools.ShowErrorInfo("client ip "+clientIP+" disconnected", err)
 			} else if !tools.ServerStoped {
 				// 读取错误
-				tools.ShowErrorInfo("read error", err)
+				tools.ShowErrorInfo("read data error", err)
 			}
 			return
 		}
