@@ -4,11 +4,11 @@ SET GOARCH=386
 
 SET GOOS=windows
 echo build for %GOOS%^<%GOARCH%^>
-go build -o billing.exe .
+go build billing
 
 SET GOOS=linux
 echo build for %GOOS%^<%GOARCH%^>
-go build -o billing .
+go build billing
 
 echo build complete
 pause
