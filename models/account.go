@@ -113,4 +113,3 @@ func UpdateOnlineStatus(db *sql.DB, username string, isOnline bool) error {
 	_, err = stmt.Exec(onlineStatus, username)
 	return err
 }
-

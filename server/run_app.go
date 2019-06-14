@@ -45,7 +45,8 @@ func RunBilling(c *config.ServerConfig) {
 		&bhandler.LoginHandler{
 			Db:      db,
 			AutoReg: c.AutoReg},
-		&bhandler.RegisterHandler{},
+		&bhandler.RegisterHandler{
+			Db: db},
 		&bhandler.EnterGameHandler{
 			Db: db},
 		&bhandler.LogoutHandler{

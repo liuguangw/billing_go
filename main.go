@@ -5,6 +5,7 @@ import (
 	"billing/server"
 	"billing/tools"
 	"os"
+	"runtime"
 )
 
 func main() {
@@ -33,5 +34,6 @@ func main() {
 		}
 	}
 	tools.LogMessage("powered by liuguang @github https://github.com/liuguangw")
+	tools.LogMessage("build by " + runtime.Version())
 	server.RunBilling(appConfig)
 }
