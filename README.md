@@ -80,7 +80,7 @@ config.json  - 配置文件
 >
 > 如果你的配置和默认配置完全一样，则可以简写为 {}
 
-将`billing` (Windows服务器则是`billing.exe`)和`config.json`必须放置于同一目录下
+将`billing` (Windows服务器则是`billing.exe`)和`config.json`放置于同一目录下
 
 修改游戏服务器的配置文件`....../tlbb/Server/Config/ServerInfo.ini`中billing的配置
 
