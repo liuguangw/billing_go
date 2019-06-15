@@ -12,8 +12,9 @@ import (
 func createHandle(sConfig *config.ServerConfig, db *sql.DB,
 	conn *net.TCPConn, listener *net.TCPListener) *BillingDataHandle {
 	handle := BillingDataHandle{
-		Conn:   conn,
-		Config: sConfig,
+		Handlers: map[byte]bhandler.BillingHandler{},
+		Conn:     conn,
+		Config:   sConfig,
 	}
 	handle.AddHandler(
 		&bhandler.CloseHandler{
