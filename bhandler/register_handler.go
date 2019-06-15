@@ -1,10 +1,10 @@
 package bhandler
 
 import (
-	"billing/models"
-	"billing/tools"
 	"database/sql"
 	"fmt"
+	"github.com/liuguangw/billing_go/models"
+	"github.com/liuguangw/billing_go/tools"
 )
 
 type RegisterHandler struct {

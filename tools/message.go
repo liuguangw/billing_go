@@ -8,6 +8,7 @@ import (
 )
 
 var logFilePath = ""
+
 // 基本的显示消息功能
 func showMessageBase(str string, isError bool) {
 	if runtime.GOOS == "linux" {

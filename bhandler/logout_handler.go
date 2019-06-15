@@ -1,9 +1,9 @@
 package bhandler
 
 import (
-	"billing/models"
-	"billing/tools"
 	"database/sql"
+	"github.com/liuguangw/billing_go/models"
+	"github.com/liuguangw/billing_go/tools"
 )
 
 type LogoutHandler struct {

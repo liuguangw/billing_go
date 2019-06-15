@@ -1,11 +1,10 @@
 package server
 
 import (
-	"billing/bhandler"
-	"billing/config"
-	"billing/database"
-	"billing/tools"
 	"fmt"
+	"github.com/liuguangw/billing_go/config"
+	"github.com/liuguangw/billing_go/database"
+	"github.com/liuguangw/billing_go/tools"
 	"net"
 )
 
@@ -34,27 +33,6 @@ func RunBilling(c *config.ServerConfig) {
 	// 监听端口成功
 	tools.LogMessage("billing server run at " + listenAddress)
 	tools.ServerStoped = false
-	//加载handler
-	var handlers = []bhandler.BillingHandler{
-		&bhandler.CloseHandler{
-			Listener: ln,
-		},
-		&bhandler.ConnectHandler{},
-		&bhandler.PingHandler{},
-		&bhandler.KeepHandler{},
-		&bhandler.LoginHandler{
-			Db:      db,
-			AutoReg: c.AutoReg},
-		&bhandler.RegisterHandler{
-			Db: db},
-		&bhandler.EnterGameHandler{
-			Db: db},
-		&bhandler.LogoutHandler{
-			Db: db},
-		&bhandler.KickHandler{},
-		&bhandler.QueryPointHandler{
-			Db: db},
-	}
 	for {
 		//接受connect
 		conn, err := ln.AcceptTCP()
@@ -71,6 +49,7 @@ func RunBilling(c *config.ServerConfig) {
 				return
 			}
 		}
-		go handleConnection(c, db, conn, ln, handlers)
+		handle := createHandle(c, db, conn, ln)
+		go handleConnection(handle)
 	}
 }

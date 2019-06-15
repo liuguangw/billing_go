@@ -1,4 +1,4 @@
-module billing
+module github.com/liuguangw/billing_go
 
 go 1.12
 

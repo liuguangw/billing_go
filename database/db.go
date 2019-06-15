@@ -1,10 +1,10 @@
 package database
 
 import (
-	"billing/config"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/liuguangw/billing_go/config"
 	"time"
 )
 

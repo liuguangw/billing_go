@@ -1,9 +1,9 @@
 package main
 
 import (
-	"billing/config"
-	"billing/server"
-	"billing/tools"
+	"github.com/liuguangw/billing_go/config"
+	"github.com/liuguangw/billing_go/server"
+	"github.com/liuguangw/billing_go/tools"
 	"os"
 	"runtime"
 )
