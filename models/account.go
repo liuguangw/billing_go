@@ -11,7 +11,7 @@ type Account struct {
 	Answer   sql.NullString
 	Email    sql.NullString
 	Qq       sql.NullString
-	Point    int32
+	Point    int
 	IsOnline byte
 	IsLock   byte
 }
@@ -113,3 +113,15 @@ func UpdateOnlineStatus(db *sql.DB, username string, isOnline bool) error {
 	_, err = stmt.Exec(onlineStatus, username)
 	return err
 }
+
+// 点数兑换
+func ConvertUserPoint(db *sql.DB, username string, realPoint int) error {
+	stmt, err := db.Prepare("UPDATE account SET point=point-? WHERE name=?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(realPoint, username)
+	return err
+}
+

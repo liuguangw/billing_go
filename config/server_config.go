@@ -14,16 +14,17 @@ const (
 
 // 配置对象
 type ServerConfig struct {
-	Ip             string   `json:"ip"`
-	Port           int      `json:"port"`
-	DbHost         string   `json:"db_host"`
-	DbPort         int      `json:"db_port"`
-	DbUser         string   `json:"db_user"`
-	DbPassword     string   `json:"db_password"`
-	DbName         string   `json:"db_name"`
-	AutoReg        bool     `json:"auto_reg"`
-	AllowIps       []string `json:"allow_ips"`
-	TransferNumber uint     `json:"transfer_number"`
+	Ip               string   `json:"ip"`
+	Port             int      `json:"port"`
+	DbHost           string   `json:"db_host"`
+	DbPort           int      `json:"db_port"`
+	DbUser           string   `json:"db_user"`
+	DbPassword       string   `json:"db_password"`
+	DbName           string   `json:"db_name"`
+	AllowOldPassword bool     `json:"allow_old_password"`
+	AutoReg          bool     `json:"auto_reg"`
+	AllowIps         []string `json:"allow_ips"`
+	ConvertNumber    int      `json:"convert_number"`
 }
 
 // 配置错误信息
@@ -45,9 +46,10 @@ func (c *ServerConfig) LoadFromFile(filepath string) *ServerConfigError {
 	c.DbUser = "root"
 	c.DbPassword = "root"
 	c.DbName = "web"
+	c.AllowOldPassword = false
 	c.AutoReg = true
 	c.AllowIps = make([]string, 0)
-	c.TransferNumber = 1000
+	c.ConvertNumber = 1000
 	// 读取文件
 	data, err := ioutil.ReadFile(filepath)
 	if err != nil {

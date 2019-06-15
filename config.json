@@ -6,5 +6,8 @@
   "db_user": "root",
   "db_password": "root",
   "db_name": "web",
-  "allow_ips": []
+  "allow_old_password": false,
+  "auto_reg": false,
+  "allow_ips": [],
+  "transfer_number": 1000
 }

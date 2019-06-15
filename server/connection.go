@@ -34,6 +34,9 @@ func createHandle(sConfig *config.ServerConfig, db *sql.DB,
 		&bhandler.KickHandler{},
 		&bhandler.QueryPointHandler{
 			Db: db},
+		&bhandler.ConvertPointHandler{
+			Db:            db,
+			ConvertNumber: sConfig.ConvertNumber},
 	)
 	return &handle
 }

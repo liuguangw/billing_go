@@ -9,10 +9,14 @@ import (
 )
 
 // 获取数据库连接 返回连接对象、版本、error
-func GetConnection(config *config.ServerConfig) (db *sql.DB, dbVersion string, err error) {
+func GetConnection(sConfig *config.ServerConfig) (db *sql.DB, dbVersion string, err error) {
 	//user:password@tcp(localhost:3306)/dbname?charset=utf8....
+	connString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", sConfig.DbUser, sConfig.DbPassword,
+		sConfig.DbHost, sConfig.DbPort, sConfig.DbName)
 	extraParams := "?charset=utf8&timeout=1s&readTimeout=1s&writeTimeout=1s"
-	connString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.DbUser, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
+	if sConfig.AllowOldPassword {
+		extraParams += "&allowOldPasswords=true"
+	}
 	db, err = sql.Open("mysql", connString+extraParams)
 	if err != nil {
 		return
