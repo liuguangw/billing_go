@@ -38,6 +38,7 @@ func createHandle(sConfig *config.ServerConfig, db *sql.DB,
 		&bhandler.ConvertPointHandler{
 			Db:            db,
 			ConvertNumber: sConfig.ConvertNumber},
+		&bhandler.CostLogHandler{},
 	)
 	return &handle
 }
