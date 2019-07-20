@@ -24,7 +24,7 @@ type ServerConfig struct {
 	AllowOldPassword bool     `json:"allow_old_password"`
 	AutoReg          bool     `json:"auto_reg"`
 	AllowIps         []string `json:"allow_ips"`
-	ConvertNumber    int      `json:"convert_number"`
+	TransferNumber   int      `json:"transfer_number"`
 }
 
 // 配置错误信息
@@ -49,7 +49,7 @@ func (c *ServerConfig) LoadFromFile(filepath string) *ServerConfigError {
 	c.AllowOldPassword = false
 	c.AutoReg = true
 	c.AllowIps = make([]string, 0)
-	c.ConvertNumber = 1000
+	c.TransferNumber = 1000
 	// 读取文件
 	data, err := ioutil.ReadFile(filepath)
 	if err != nil {
