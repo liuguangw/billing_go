@@ -1,6 +1,9 @@
 package models
 
-import "database/sql"
+import (
+	"database/sql"
+	"errors"
+)
 
 //Account 用户信息结构
 type Account struct {
@@ -16,21 +19,15 @@ type Account struct {
 	IsLock   byte
 }
 
-const (
-	UserNotFound byte = 0
-	UserFound    byte = 1
-	DbError      byte = 2
-)
-
-// 第二个返回值表示查找状态
-func GetAccountByUsername(db *sql.DB, username string) (*Account, byte) {
+//通过用户名获取用户信息
+func GetAccountByUsername(db *sql.DB, username string) (*Account, error) {
 	var account Account
 	rows, err := db.Query("SELECT id,name,password"+
 		",question,answer,email,qq,point"+
 		",is_online,is_lock"+
 		" FROM account WHERE name=?", username)
 	if err != nil {
-		return &account, DbError
+		return nil, errors.New("db error: " + err.Error())
 	}
 	defer rows.Close()
 	if rows.Next() {
@@ -38,65 +35,69 @@ func GetAccountByUsername(db *sql.DB, username string) (*Account, byte) {
 			&account.Question, &account.Answer, &account.Email, &account.Qq, &account.Point,
 			&account.IsOnline, &account.IsLock)
 		if err != nil {
-			return &account, DbError
+			return nil, errors.New("db rows.Scan error: " + err.Error())
 		}
 	} else {
 		// 查询不到此用户名的记录
-		return &account, UserNotFound
+		return nil, nil
 	}
-	return &account, UserFound
+	return &account, nil
 }
 
-//登录
-func GetLoginResult(db *sql.DB, username string, password string) byte {
-	account, queryOp := GetAccountByUsername(db, username)
-	if queryOp == UserNotFound {
+//获取登录结果
+func GetLoginResult(db *sql.DB, username, password string) (byte, error) {
+	account, err := GetAccountByUsername(db, username)
+	if err != nil {
+		//数据库异常
+		return 6, err
+	} else if account == nil {
 		// 用户不存在
-		return 9
-	} else if queryOp == DbError {
-		// 数据库异常
-		return 6
+		return 9, errors.New("user " + username + " does not exists(go to register)")
 	}
 	if account.Password != password {
 		// 密码错误
-		return 3
+		return 3, errors.New("user " + username + " password error")
 	}
 	if account.IsLock != 0 {
 		//停权
-		return 7
+		return 7, errors.New("user " + username + " account locked")
 	}
 	if account.IsOnline != 0 {
 		//有角色在线
-		return 4
+		return 4, errors.New("user " + username + " is online")
 	}
-	return 1
+	return 1, nil
 }
 
 //注册
-func GetRegisterResult(db *sql.DB, username string, password string, superPassword string, email string) byte {
-	_, queryOp := GetAccountByUsername(db, username)
-	var regErr byte = 4
-	if queryOp == UserFound {
-		// 用户已存在
-		return regErr
-	} else if queryOp == DbError {
-		// 数据库异常
-		return regErr
+func GetRegisterResult(db *sql.DB, username string, password string, superPassword string, email string) (byte, error) {
+	//成功、失败状态码
+	var (
+		regSuccessCode byte = 1
+		regErrCode     byte = 4
+	)
+	account, err := GetAccountByUsername(db, username)
+	if err != nil {
+		//数据库异常
+		return regErrCode, err
+	} else if account != nil {
+		// 要注册的用户已存在
+		return regErrCode, errors.New("user " + username + " already exists")
 	}
 	// 不允许默认的邮箱
 	if email == "1@1.com" {
-		return regErr
+		return regErrCode, errors.New("email " + email + " is not allowed")
 	}
 	stmt, err := db.Prepare("INSERT INTO account (name, password, question, email) VALUES (?, ?, ?, ?)")
 	if err != nil {
-		return regErr
+		return regErrCode, errors.New("db.Prepare error: " + err.Error())
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(username, password, superPassword, email)
 	if err != nil {
-		return regErr
+		return regErrCode, errors.New("db stmt.Exec error: " + err.Error())
 	}
-	return 1
+	return regSuccessCode, nil
 }
 
 // 更新在线状态
@@ -124,4 +125,3 @@ func ConvertUserPoint(db *sql.DB, username string, realPoint int) error {
 	_, err = stmt.Exec(realPoint, username)
 	return err
 }
-

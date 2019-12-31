@@ -39,9 +39,12 @@ func (h *QueryPointHandler) GetResponse(request *BillingData) *BillingData {
 	if err != nil {
 		tools.ShowErrorInfo("update username:"+string(username)+" to online failed", err)
 	}
-	account, queryOp := models.GetAccountByUsername(h.Db, string(username))
+	account, err := models.GetAccountByUsername(h.Db, string(username))
+	if err!=nil{
+		tools.ShowErrorInfo("get account:"+string(username)+" info failed", err)
+	}
 	var accountPoint = 0
-	if queryOp == models.UserFound {
+	if account != nil {
 		accountPoint = (account.Point + 1) * 1000
 	}
 	tools.LogMessage(fmt.Sprintf("user [%v] %v query point (%v) at %v", string(username), charName, account.Point, loginIP))

@@ -1,6 +1,7 @@
 @echo off
 SET CGO_ENABLED=0
 SET GOARCH=386
+SET GO111MODULE=on
 SET GOPROXY=https://goproxy.cn
 SET GOOS=windows
 SET DIST_FILE_NAME=billing.exe

@@ -64,8 +64,11 @@ func (h *ConvertPointHandler) GetResponse(request *BillingData) *BillingData {
 	}
 	userPoint := 0
 	//获取用户当前点数总额
-	account, queryOp := models.GetAccountByUsername(h.Db, string(username))
-	if queryOp == models.UserFound {
+	account, err := models.GetAccountByUsername(h.Db, string(username))
+	if err!=nil{
+		tools.ShowErrorInfo("get account:"+string(username)+" info failed", err)
+	}
+	if account != nil {
 		userPoint = account.Point
 		if userPoint < 0 {
 			userPoint = 0
@@ -79,7 +82,7 @@ func (h *ConvertPointHandler) GetResponse(request *BillingData) *BillingData {
 		realPoint = needPoint
 	}
 	// 执行兑换
-	err := models.ConvertUserPoint(h.Db, string(username), realPoint)
+	err = models.ConvertUserPoint(h.Db, string(username), realPoint)
 	if err != nil {
 		tools.ShowErrorInfo("convert point failed", err)
 		realPoint = 0

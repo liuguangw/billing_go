@@ -46,8 +46,12 @@ func (h *RegisterHandler) GetResponse(request *BillingData) *BillingData {
 	offset++
 	email := string(request.OpData[offset : offset+tmpLength])
 	//
-	regResult := models.GetRegisterResult(h.Db, string(username), password, superPassword, email)
-	tools.LogMessage(fmt.Sprintf("user [%v](%v) try to register from %v : %v", string(username), email, registerIP, regResult == 1))
+	regResult, registerErr := models.GetRegisterResult(h.Db, string(username), password, superPassword, email)
+	regResultTxt := "success"
+	if registerErr != nil {
+		regResultTxt = registerErr.Error()
+	}
+	tools.LogMessage(fmt.Sprintf("user [%v](%v) try to register from %v : %v", string(username), email, registerIP, regResultTxt))
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, regResult)

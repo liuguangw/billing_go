@@ -35,12 +35,17 @@ func (h *LoginHandler) GetResponse(request *BillingData) *BillingData {
 	tmpLength = int(request.OpData[offset])
 	offset++
 	loginIP := string(request.OpData[offset : offset+tmpLength])
-	loginResult := models.GetLoginResult(h.Db, string(username), password)
+	loginResult, loginErr := models.GetLoginResult(h.Db, string(username), password)
+	loginResultTxt := "success"
+	if loginErr != nil {
+		loginResultTxt = loginErr.Error()
+	}
 	// 如果未开启自动注册,当用户不存在时会返回密码错误
 	if (!h.AutoReg) && (loginResult == 9) {
 		loginResult = 3
+		loginResultTxt = "user " + string(username) + " password error"
 	}
-	tools.LogMessage(fmt.Sprintf("user [%v] try to login from %v : %v", string(username), loginIP, loginResult))
+	tools.LogMessage(fmt.Sprintf("user [%v] try to login from %v : %v", string(username), loginIP, loginResultTxt))
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, loginResult)
