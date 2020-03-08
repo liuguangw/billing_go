@@ -1,30 +1,30 @@
 package server
 
 import (
-	"fmt"
 	"github.com/liuguangw/billing_go/config"
 	"github.com/liuguangw/billing_go/database"
 	"github.com/liuguangw/billing_go/tools"
 	"net"
+	"strconv"
 )
 
 //启动函数
-func RunBilling(c *config.ServerConfig) {
+func RunBilling(serverConfig *config.ServerConfig) {
 	//初始化数据库连接
-	db, dbVersion, err := database.GetConnection(c)
+	db, dbVersion, err := database.GetConnection(serverConfig)
 	if err != nil {
 		tools.ShowErrorInfo("Database Error", err)
 		return
 	}
 	tools.LogMessage("mysql version: " + dbVersion)
 	//监听端口
-	listenAddress := fmt.Sprintf("%s:%d", c.Ip, c.Port)
+	listenAddress := serverConfig.Ip + ":" + strconv.Itoa(serverConfig.Port)
 	serverEndpoint, err := net.ResolveTCPAddr("tcp", listenAddress)
 	if err != nil {
 		tools.ShowErrorInfo("resolve TCPAddr failed", err)
 		return
 	}
-	ln, err := net.ListenTCP("tcp", serverEndpoint)
+	listener, err := net.ListenTCP("tcp", serverEndpoint)
 	if err != nil {
 		// handle error
 		tools.ShowErrorInfo("failed to listen at "+listenAddress, err)
@@ -35,7 +35,7 @@ func RunBilling(c *config.ServerConfig) {
 	tools.ServerStoped = false
 	for {
 		//接受connect
-		conn, err := ln.AcceptTCP()
+		tcpConn, err := listener.AcceptTCP()
 		if err != nil {
 			// handle error
 			if !tools.ServerStoped {
@@ -49,7 +49,7 @@ func RunBilling(c *config.ServerConfig) {
 				return
 			}
 		}
-		handle := createHandle(c, db, conn, ln)
+		handle := createHandle(serverConfig, db, tcpConn, listener)
 		go handleConnection(handle)
 	}
 }

@@ -5,20 +5,16 @@ import (
 	"path/filepath"
 )
 
-var appPath = ""
-
-func getItemFullPath(fname string) (fullPath string, err error) {
-	if appPath == "" {
-		//当前程序的绝对路径
-		mainAppPath, tErr := filepath.Abs(os.Args[0])
-		if tErr != nil {
-			err = tErr
-			return
-		}
-		appPath = filepath.Dir(mainAppPath)
+//获取程序目录下的文件绝对路径
+func getItemFullPath(fname string) (string, error) {
+	//当前程序文件的绝对路径
+	mainAppPath, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		return "", err
 	}
-	fullPath = filepath.Join(appPath, fname)
-	return
+	//目录
+	appDir := filepath.Dir(mainAppPath)
+	return filepath.Join(appDir, fname), nil
 }
 
 func GetConfigFilePath() (string, error) {

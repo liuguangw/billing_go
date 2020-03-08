@@ -9,12 +9,12 @@ import (
 	"net"
 )
 
-func createHandle(sConfig *config.ServerConfig, db *sql.DB,
-	conn *net.TCPConn, listener *net.TCPListener) *BillingDataHandle {
+func createHandle(serverConfig *config.ServerConfig, db *sql.DB,
+	tcpConn *net.TCPConn, listener *net.TCPListener) *BillingDataHandle {
 	handle := BillingDataHandle{
 		Handlers: map[byte]bhandler.BillingHandler{},
-		Conn:     conn,
-		Config:   sConfig,
+		TcpConn:  tcpConn,
+		Config:   serverConfig,
 	}
 	handle.AddHandler(
 		&bhandler.CloseHandler{
@@ -25,7 +25,7 @@ func createHandle(sConfig *config.ServerConfig, db *sql.DB,
 		&bhandler.KeepHandler{},
 		&bhandler.LoginHandler{
 			Db:      db,
-			AutoReg: sConfig.AutoReg},
+			AutoReg: serverConfig.AutoReg},
 		&bhandler.RegisterHandler{
 			Db: db},
 		&bhandler.EnterGameHandler{
@@ -37,7 +37,7 @@ func createHandle(sConfig *config.ServerConfig, db *sql.DB,
 			Db: db},
 		&bhandler.ConvertPointHandler{
 			Db:            db,
-			ConvertNumber: sConfig.TransferNumber},
+			ConvertNumber: serverConfig.TransferNumber},
 		&bhandler.CostLogHandler{},
 	)
 	return &handle
@@ -49,7 +49,7 @@ func handleConnection(handle *BillingDataHandle) {
 	clientIP := handle.GetClientIp()
 	// 判断是否允许此ip进行连接
 	if !handle.IsClientIpAllowed(clientIP) {
-		_ = handle.Conn.Close()
+		_ = handle.TcpConn.Close()
 		tools.ShowErrorInfoStr("client ip " + clientIP + " is not allowed !")
 		return
 	}
@@ -65,7 +65,7 @@ func handleConnection(handle *BillingDataHandle) {
 	var buff = make([]byte, 1024)
 	for {
 		//tools.LogMessage("start read")
-		readBytes, err := handle.Conn.Read(buff)
+		readBytes, err := handle.TcpConn.Read(buff)
 		//tools.LogMessage("after read")
 		if err != nil {
 			if err == io.EOF {

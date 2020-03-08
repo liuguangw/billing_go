@@ -12,21 +12,21 @@ import (
 
 type BillingDataHandle struct {
 	Handlers map[byte]bhandler.BillingHandler
-	Conn     *net.TCPConn
+	TcpConn  *net.TCPConn
 	Config   *config.ServerConfig
 }
 
 // 添加handler
-func (h *BillingDataHandle) AddHandler(handlers ...bhandler.BillingHandler) {
+func (handle *BillingDataHandle) AddHandler(handlers ...bhandler.BillingHandler) {
 	for _, handler := range handlers {
-		h.Handlers[handler.GetType()] = handler
+		handle.Handlers[handler.GetType()] = handler
 	}
 }
 
 // 处理request
-func (h *BillingDataHandle) ProcessRequest(request *bhandler.BillingData) error {
+func (handle *BillingDataHandle) ProcessRequest(request *bhandler.BillingData) error {
 	var response *bhandler.BillingData = nil
-	for opType, handler := range h.Handlers {
+	for opType, handler := range handle.Handlers {
 		if request.OpType == opType {
 			response = handler.GetResponse(request)
 			break
@@ -35,7 +35,7 @@ func (h *BillingDataHandle) ProcessRequest(request *bhandler.BillingData) error 
 	if response != nil {
 		//响应
 		responseData := response.PackData()
-		_, err := h.Conn.Write(responseData)
+		_, err := handle.TcpConn.Write(responseData)
 		if err != nil {
 			return err
 		}
@@ -48,20 +48,20 @@ func (h *BillingDataHandle) ProcessRequest(request *bhandler.BillingData) error 
 }
 
 // 获取连接者的IP
-func (h *BillingDataHandle) GetClientIp() string {
-	remoteAddr := h.Conn.RemoteAddr().String()
+func (handle *BillingDataHandle) GetClientIp() string {
+	remoteAddr := handle.TcpConn.RemoteAddr().String()
 	return remoteAddr[:strings.LastIndex(remoteAddr, ":")]
 }
 
 // 判断ip是否允许连接
-func (h *BillingDataHandle) IsClientIpAllowed(clientIP string) bool {
+func (handle *BillingDataHandle) IsClientIpAllowed(clientIP string) bool {
 	// 当配置的白名单为空时,表示允许所有ip连接
-	if len(h.Config.AllowIps) == 0 {
+	if len(handle.Config.AllowIps) == 0 {
 		return true
 	}
 	// 当数组不为空时,只允许指定的ip连接
 	ipAllowed := false
-	for _, allowIP := range h.Config.AllowIps {
+	for _, allowIP := range handle.Config.AllowIps {
 		if allowIP == clientIP {
 			ipAllowed = true
 			break
@@ -71,8 +71,8 @@ func (h *BillingDataHandle) IsClientIpAllowed(clientIP string) bool {
 }
 
 // TCP keepalive
-func (h *BillingDataHandle) SetKeepAlive() error {
-	err := h.Conn.SetKeepAlive(true)
+func (handle *BillingDataHandle) SetKeepAlive() error {
+	err := handle.TcpConn.SetKeepAlive(true)
 	if err != nil {
 		return err
 	}
@@ -80,5 +80,5 @@ func (h *BillingDataHandle) SetKeepAlive() error {
 	if err == nil {
 		return err
 	}
-	return h.Conn.SetKeepAlivePeriod(keepAlivePeriod)
+	return handle.TcpConn.SetKeepAlivePeriod(keepAlivePeriod)
 }
