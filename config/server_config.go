@@ -33,7 +33,7 @@ func NewServerConfig() (*ServerConfig, error) {
 	if err != nil {
 		return nil, errors.New("read config file " + configFilePath + " failed: " + err.Error())
 	}
-	//初始化字段
+	// 初始化字段
 	serverConfig := &ServerConfig{
 		Ip:             "127.0.0.1",
 		Port:           12680,

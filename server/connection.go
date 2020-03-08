@@ -16,6 +16,7 @@ func createHandle(serverConfig *config.ServerConfig, db *sql.DB,
 		TcpConn:  tcpConn,
 		Config:   serverConfig,
 	}
+	//添加handler
 	handle.AddHandler(
 		&bhandler.CloseHandler{
 			Listener: listener,
@@ -97,12 +98,13 @@ func handleConnection(handle *BillingDataHandle) {
 				//成功读取到一个完整包
 				// 从缓冲的clientData中移除此包
 				clientData = clientData[packLength:]
-				//处理包
+				//调用handler处理包
 				err = handle.ProcessRequest(request)
 				if err != nil {
 					tools.ShowErrorInfo("response failed", err)
 					return
 				}
+				//->继续尝试解析下一个请求包(line 92)
 			} else {
 				//数据包不完整，跳出解析数据包循环
 				break
