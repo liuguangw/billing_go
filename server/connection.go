@@ -65,9 +65,8 @@ func handleConnection(handle *BillingDataHandle) {
 	//定义每次读取的缓冲区
 	var buff = make([]byte, 1024)
 	for {
-		//tools.LogMessage("start read")
+		//读取到的字节数
 		readBytes, err := handle.TcpConn.Read(buff)
-		//tools.LogMessage("after read")
 		if err != nil {
 			if err == io.EOF {
 				// 连接意外断开
@@ -79,40 +78,18 @@ func handleConnection(handle *BillingDataHandle) {
 			//读取异常，结束循环读取操作
 			return
 		}
-		// 当读取到数据时,将数据append到clientData后面
+		// 当读取到数据数>0时
 		if readBytes > 0 {
+			//缓存的数据+新读取到的数据
 			clientData = append(clientData, buff[:readBytes]...)
-		}
-		//tools.LogMessage("read bytes " + strconv.Itoa(readBytes))
-		//binary data
-		//fmt.Println(clientData)
-		// 循环读取(防止粘包导致数据包沉积)
-		for {
-			// 尝试解析数据包
-			request, resultMask, packLength := bhandler.ReadBillingData(clientData)
-			if resultMask == bhandler.BillingDataError {
-				//包结构不正确
-				tools.ShowErrorInfoStr("billing data struct error")
+			//处理数据
+			processSize, err := handle.processData(clientData)
+			if err != nil {
+				tools.ShowErrorInfoStr(err.Error())
 				return
-			} else if resultMask == bhandler.BillingReadOk {
-				//成功读取到一个完整包
-				// 从缓冲的clientData中移除此包
-				clientData = clientData[packLength:]
-				//调用handler处理包
-				err = handle.ProcessRequest(request)
-				if err != nil {
-					tools.ShowErrorInfo("response failed", err)
-					return
-				}
-				//->继续尝试解析下一个请求包(line 92)
-			} else {
-				//数据包不完整，跳出解析数据包循环
-				break
 			}
+			//移出已经处理过的数据
+			clientData = clientData[processSize:]
 		}
-		/*tools.LogMessage("clientData left size:" + strconv.Itoa(len(clientData)))
-		if len(clientData) > 0 {
-			fmt.Println(clientData)
-		}*/
 	} //end for
 }

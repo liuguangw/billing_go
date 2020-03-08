@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"github.com/liuguangw/billing_go/bhandler"
 	"github.com/liuguangw/billing_go/config"
@@ -81,4 +82,32 @@ func (handle *BillingDataHandle) SetKeepAlive() error {
 		return err
 	}
 	return handle.TcpConn.SetKeepAlivePeriod(keepAlivePeriod)
+}
+
+func (handle *BillingDataHandle) processData(clientData []byte) (int, error) {
+	//已处理的数据大小
+	processSize := 0
+	for {
+		// 尝试解析数据包
+		request, resultMask, packLength := bhandler.ReadBillingData(clientData)
+		if resultMask == bhandler.BillingDataError {
+			//包结构不正确
+			return processSize, errors.New("billing data struct error")
+		} else if resultMask == bhandler.BillingReadOk {
+			//成功读取到一个完整包
+			// 从缓冲的clientData中移除此包
+			clientData = clientData[packLength:]
+			//调用handler处理包
+			err := handle.ProcessRequest(request)
+			if err != nil {
+				return processSize, errors.New("response failed: " + err.Error())
+			}
+			processSize += packLength
+			//->继续尝试解析下一个请求包(line 91)
+		} else {
+			//数据包不完整，跳出解析数据包循环
+			break
+		}
+	}
+	return processSize, nil
 }
