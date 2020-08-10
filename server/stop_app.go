@@ -29,4 +29,5 @@ func StopBilling(serverConfig *config.ServerConfig) {
 	if err != nil {
 		tools.ShowErrorInfo("stop billing failed", err)
 	}
+	tools.LogMessage("stop command sent successfully")
 }

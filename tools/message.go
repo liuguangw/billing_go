@@ -14,15 +14,19 @@ func showMessageBase(str string, isError bool) {
 	if runtime.GOOS == "linux" {
 		if isError {
 			// linux下用红色显示错误信息
-			fmt.Printf("%c[1;0;31m%s%c[0m\n", 0x1B, str, 0x1B)
+			fmt.Fprintf(os.Stderr, "%c[1;0;31m%s%c[0m\n", 0x1B, str, 0x1B)
 		} else {
 			// linux下用绿色显示
 			fmt.Printf("%c[1;0;32m%s%c[0m\n", 0x1B, str, 0x1B)
 		}
-	} else {
-		// 其他系统直接输出
-		fmt.Println(str)
+		return
 	}
+	// 其他系统直接输出
+	if isError {
+		fmt.Fprintln(os.Stderr, str)
+		return
+	}
+	fmt.Println(str)
 }
 
 //记录日志到文件

@@ -106,15 +106,25 @@ Linux和Windows下的操作分别如下
 
 ### 启动
 
-Linux下启动billing方法
+Linux下启动billing方法(**前台模式**)
 
 ```bash
 #进入billing所在文件夹,比如/home
 cd /home
 #添加执行权限
 chmod a+x ./billing
-#启动billing，并让其在后台运行
-./billing &
+#启动billing
+./billing
+```
+
+Linux下在后台运行billing的方法(**后台模式**,只支持Linux和类unix系统)
+```bash
+#进入billing所在文件夹,比如/home
+cd /home
+#添加执行权限
+chmod a+x ./billing
+#启动billing
+./billing up -d
 ```
 
 Windows下,直接双击`billing.exe`即可
@@ -128,3 +138,7 @@ Linux停止billing命令
 ```
 
 Windows下关闭billing窗口即可
+
+## 其它语言的实现
+
+除了此版本外，我还有一个rust版本的实现，[点击这里](https://github.com/liuguangw/billing_rust)可以查看。

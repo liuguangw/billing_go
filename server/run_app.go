@@ -46,7 +46,7 @@ func RunBilling(serverConfig *config.ServerConfig) {
 				continue
 			} else {
 				// 已收到stop命令
-				tools.LogMessage("billing server stoped ok")
+				//tools.LogMessage("billing server stoped ok")
 				return
 			}
 		}
