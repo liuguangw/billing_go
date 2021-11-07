@@ -65,7 +65,7 @@ func (h *ConvertPointHandler) GetResponse(request *BillingData) *BillingData {
 	userPoint := 0
 	//获取用户当前点数总额
 	account, err := models.GetAccountByUsername(h.Db, string(username))
-	if err!=nil{
+	if err != nil {
 		tools.ShowErrorInfo("get account:"+string(username)+" info failed", err)
 	}
 	if account != nil {

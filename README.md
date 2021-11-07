@@ -1,4 +1,4 @@
-# billing_go
+# billing_go[dev分支]
 
 这是一个用Go语言编写的billing验证服务器。
 

@@ -22,7 +22,7 @@ func StopBilling(serverConfig *config.ServerConfig) {
 	}
 	defer tcpConn.Close()
 	sendData := &bhandler.BillingData{
-		MsgID:  [2]byte{0,0},
+		MsgID: [2]byte{0, 0},
 	}
 	tools.LogMessage("stoping billing server ...")
 	_, err = tcpConn.Write(sendData.PackData())

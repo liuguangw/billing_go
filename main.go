@@ -1,14 +1,26 @@
 package main
 
 import (
+	"fmt"
 	"github.com/liuguangw/billing_go/config"
 	"github.com/liuguangw/billing_go/server"
+	"github.com/liuguangw/billing_go/services"
 	"github.com/liuguangw/billing_go/tools"
+	"log"
 	"os"
 	"runtime"
 )
 
 func main() {
+	appConfig, err := services.LoadServerConfig()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Printf("%+v\n", appConfig)
+	__main()
+}
+
+func __main() {
 	//获取配置
 	serverConfig, err := config.NewServerConfig()
 	if err != nil {

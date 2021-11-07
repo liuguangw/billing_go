@@ -1,0 +1,15 @@
+ip: 127.0.0.1
+port: 12680
+db_host: 127.0.0.1
+db_port: 3306
+db_user: root
+db_password: 'root'
+db_name: web
+allow_old_password: false
+auto_reg: true
+#allow_ips:
+#  - 1.1.1.1
+#  - 127.0.0.1
+transfer_number: 1000
+max_client_count: 500
+pc_max_client_count: 3

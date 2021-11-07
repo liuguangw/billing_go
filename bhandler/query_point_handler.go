@@ -40,7 +40,7 @@ func (h *QueryPointHandler) GetResponse(request *BillingData) *BillingData {
 		tools.ShowErrorInfo("update username:"+string(username)+" to online failed", err)
 	}
 	account, err := models.GetAccountByUsername(h.Db, string(username))
-	if err!=nil{
+	if err != nil {
 		tools.ShowErrorInfo("get account:"+string(username)+" info failed", err)
 	}
 	var accountPoint = 0
