@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 )
 
@@ -22,6 +23,9 @@ func (s *Server) Run() {
 			logFile.Close()
 		}
 	}()
+	//输出build信息
+	s.Logger.Info("powered by liuguang @github https://github.com/liuguangw")
+	s.Logger.Info("build by " + runtime.Version())
 	//初始化tcp连接
 	if err := s.initListener(); err != nil {
 		s.Logger.Fatal("init Listener failed: " + err.Error())
@@ -41,9 +45,9 @@ func (s *Server) Run() {
 	//signal和stop命令都可以触发关闭
 	select {
 	case <-c:
-		s.Logger.Info("using signal to stop server")
+		s.Logger.Info("stop server using signal...")
 	case <-ctx.Done():
-		s.Logger.Info("using command to stop server")
+		s.Logger.Info("stop server using command...")
 	}
 	if err := s.processStop(); err != nil {
 		s.Logger.Fatal("stop service failed: " + err.Error())

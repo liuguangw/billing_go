@@ -37,8 +37,6 @@ func main() {
 			return
 		}
 	}
-	fmt.Println("powered by liuguang @github https://github.com/liuguangw")
-	fmt.Println("build by " + runtime.Version())
 	//启动
 	server.Run()
 }

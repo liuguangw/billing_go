@@ -15,13 +15,15 @@ func (h *TcpConnection) readPacketFromClient(packetChan chan<- *common.BillingPa
 	for {
 		n, err := h.tcpConn.Read(buff)
 		if err != nil {
-			clientAddrStr := h.tcpConn.RemoteAddr().String()
-			if err == io.EOF {
-				// 连接意外断开
-				h.server.Logger.Info("client " + clientAddrStr + " disconnected")
-			} else if h.server.Running() {
-				// 读取错误
-				h.server.Logger.Info("read from client " + clientAddrStr + " failed: " + err.Error())
+			//读取错误
+			if h.server.Running() {
+				clientAddrStr := h.tcpConn.RemoteAddr().String()
+				if err == io.EOF {
+					h.server.Logger.Info("client " + clientAddrStr + " disconnected")
+				} else {
+					//记录读取错误
+					h.server.Logger.Error("read from client " + clientAddrStr + " failed: " + err.Error())
+				}
 			}
 			return
 		}
@@ -47,11 +49,12 @@ func (h *TcpConnection) readPacket(clientData []byte, packetChan chan<- *common.
 	for {
 		//解析数据包
 		packet, readErr := common.ReadBillingPacket(clientData[packTotalSize:])
-		if readErr == common.ErrorPacketInvalid {
-			return 0, readErr
-		}
 		if readErr == common.ErrorPacketNotFull {
 			break
+		}
+		//其它错误
+		if readErr != nil {
+			return 0, readErr
 		}
 		packTotalSize += packet.FullLength()
 		packetChan <- packet
