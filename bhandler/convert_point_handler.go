@@ -3,21 +3,22 @@ package bhandler
 import (
 	"database/sql"
 	"fmt"
+	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
-	"github.com/liuguangw/billing_go/tools"
+	"go.uber.org/zap"
 )
 
 type ConvertPointHandler struct {
 	Db            *sql.DB
+	Logger        *zap.Logger
 	ConvertNumber int
 }
 
 func (*ConvertPointHandler) GetType() byte {
 	return 0xE1
 }
-func (h *ConvertPointHandler) GetResponse(request *BillingData) *BillingData {
-	var response BillingData
-	response.PrepareResponse(request)
+func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
+	response := request.PrepareResponse()
 	var opData []byte
 	offset := 0
 	usernameLength := request.OpData[offset]
@@ -66,7 +67,7 @@ func (h *ConvertPointHandler) GetResponse(request *BillingData) *BillingData {
 	//获取用户当前点数总额
 	account, err := models.GetAccountByUsername(h.Db, string(username))
 	if err != nil {
-		tools.ShowErrorInfo("get account:"+string(username)+" info failed", err)
+		h.Logger.Error("get account:" + string(username) + " info failed: " + err.Error())
 	}
 	if account != nil {
 		userPoint = account.Point
@@ -84,10 +85,10 @@ func (h *ConvertPointHandler) GetResponse(request *BillingData) *BillingData {
 	// 执行兑换
 	err = models.ConvertUserPoint(h.Db, string(username), realPoint)
 	if err != nil {
-		tools.ShowErrorInfo("convert point failed", err)
+		h.Logger.Error("convert point failed: " + err.Error())
 		realPoint = 0
 	} else {
-		tools.LogMessage(fmt.Sprintf("user [%s] %v(ip: %v) point total [%v], need point [%v]: %v-%v=%v",
+		h.Logger.Info(fmt.Sprintf("user [%s] %v(ip: %v) point total [%v], need point [%v]: %v-%v=%v",
 			username, charName, loginIP, userPoint, needPoint,
 			userPoint, realPoint, userPoint-realPoint))
 	}
@@ -101,5 +102,5 @@ func (h *ConvertPointHandler) GetResponse(request *BillingData) *BillingData {
 	// 点数 2u
 	opData = append(opData, byte((realPoint&0xff00)>>8), byte(realPoint&0xff))
 	response.OpData = opData
-	return &response
+	return response
 }

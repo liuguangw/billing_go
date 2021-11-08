@@ -3,20 +3,21 @@ package bhandler
 import (
 	"database/sql"
 	"fmt"
+	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
-	"github.com/liuguangw/billing_go/tools"
+	"go.uber.org/zap"
 )
 
 type QueryPointHandler struct {
-	Db *sql.DB
+	Db     *sql.DB
+	Logger *zap.Logger
 }
 
 func (*QueryPointHandler) GetType() byte {
 	return 0xE2
 }
-func (h *QueryPointHandler) GetResponse(request *BillingData) *BillingData {
-	var response BillingData
-	response.PrepareResponse(request)
+func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
+	response := request.PrepareResponse()
 	var opData []byte
 	//用户名
 	offset := 0
@@ -34,20 +35,16 @@ func (h *QueryPointHandler) GetResponse(request *BillingData) *BillingData {
 	tmpLength = int(request.OpData[offset])
 	offset++
 	charName := string(request.OpData[offset : offset+tmpLength])
-	// 更新在线状态
-	err := models.UpdateOnlineStatus(h.Db, string(username), true)
-	if err != nil {
-		tools.ShowErrorInfo("update username:"+string(username)+" to online failed", err)
-	}
+	// todo 更新在线状态
 	account, err := models.GetAccountByUsername(h.Db, string(username))
 	if err != nil {
-		tools.ShowErrorInfo("get account:"+string(username)+" info failed", err)
+		h.Logger.Error("get account:" + string(username) + " info failed: " + err.Error())
 	}
 	var accountPoint = 0
 	if account != nil {
 		accountPoint = (account.Point + 1) * 1000
 	}
-	tools.LogMessage(fmt.Sprintf("user [%v] %v query point (%v) at %v", string(username), charName, account.Point, loginIP))
+	h.Logger.Info(fmt.Sprintf("user [%v] %v query point (%v) at %v", string(username), charName, account.Point, loginIP))
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	var tmpByte byte
@@ -60,5 +57,5 @@ func (h *QueryPointHandler) GetResponse(request *BillingData) *BillingData {
 	tmpByte = byte(accountPoint & 0xff)
 	opData = append(opData, tmpByte)
 	response.OpData = opData
-	return &response
+	return response
 }

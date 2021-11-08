@@ -3,20 +3,22 @@ package bhandler
 import (
 	"database/sql"
 	"fmt"
+	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
-	"github.com/liuguangw/billing_go/tools"
+	"go.uber.org/zap"
 )
 
 type RegisterHandler struct {
-	Db *sql.DB
+	Db     *sql.DB
+	Logger *zap.Logger
 }
 
 func (*RegisterHandler) GetType() byte {
 	return 0xF1
 }
-func (h *RegisterHandler) GetResponse(request *BillingData) *BillingData {
-	var response BillingData
-	response.PrepareResponse(request)
+
+func (h *RegisterHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
+	response := request.PrepareResponse()
 	//读取请求信息
 	var opData []byte
 	//用户名
@@ -46,15 +48,30 @@ func (h *RegisterHandler) GetResponse(request *BillingData) *BillingData {
 	offset++
 	email := string(request.OpData[offset : offset+tmpLength])
 	//
-	regResult, registerErr := models.GetRegisterResult(h.Db, string(username), password, superPassword, email)
-	regResultTxt := "success"
-	if registerErr != nil {
-		regResultTxt = registerErr.Error()
+	account := &models.Account{
+		Name:     string(username),
+		Password: password,
+		Question: sql.NullString{
+			String: superPassword,
+			Valid:  true,
+		},
+		Email: sql.NullString{
+			String: email,
+			Valid:  true,
+		},
 	}
-	tools.LogMessage(fmt.Sprintf("user [%v](%v) try to register from %v : %v", string(username), email, registerIP, regResultTxt))
+	var (
+		regResult    byte = 1
+		regResultTxt      = "success"
+	)
+	if err := models.RegisterAccount(h.Db, account); err != nil {
+		regResult = 4
+		regResultTxt = err.Error()
+	}
+	h.Logger.Info(fmt.Sprintf("user [%v](%v) try to register from %v : %v", string(username), email, registerIP, regResultTxt))
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, regResult)
 	response.OpData = opData
-	return &response
+	return response
 }

@@ -60,38 +60,32 @@ func LoadServerConfig() (*common.ServerConfig, error) {
 		return nil, errors.New("config file not found")
 	}
 	defer configFile.Close()
-	if filenameIndex == 0 {
-		return loadServerConfigFromYaml(configFile)
+	// 读取配置文件
+	fileData, err := ioutil.ReadAll(configFile)
+	if err != nil {
+		return nil, errors.New("read config file failed: " + err.Error())
 	}
-	return loadServerConfigFromJSON(configFile)
+	//初始化配置
+	serverConfig := defaultServerConfig()
+	if filenameIndex == 0 {
+		if err := loadServerConfigFromYaml(fileData, serverConfig); err != nil {
+			return nil, err
+		}
+		return serverConfig, nil
+	}
+	//json格式
+	if err := loadServerConfigFromJSON(fileData, serverConfig); err != nil {
+		return nil, err
+	}
+	return serverConfig, nil
 }
 
 // loadServerConfigFromJSON 从json文件中加载配置
-func loadServerConfigFromJSON(configFile *os.File) (*common.ServerConfig, error) {
-	serverConfig := defaultServerConfig()
-	// 读取配置文件
-	fileData, err := ioutil.ReadAll(configFile)
-	if err != nil {
-		return nil, errors.New("read config file failed: " + err.Error())
-	}
-	// 解析
-	if err = json.Unmarshal(fileData, serverConfig); err != nil {
-		return nil, errors.New("parse config file failed, " + err.Error())
-	}
-	return serverConfig, nil
+func loadServerConfigFromJSON(fileData []byte, serverConfig *common.ServerConfig) error {
+	return json.Unmarshal(fileData, serverConfig)
 }
 
 // loadServerConfigFromYaml 从yaml文件中加载配置
-func loadServerConfigFromYaml(configFile *os.File) (*common.ServerConfig, error) {
-	serverConfig := defaultServerConfig()
-	// 读取配置文件
-	fileData, err := ioutil.ReadAll(configFile)
-	if err != nil {
-		return nil, errors.New("read config file failed: " + err.Error())
-	}
-	// 解析
-	if err = yaml.Unmarshal(fileData, serverConfig); err != nil {
-		return nil, errors.New("parse config file failed, " + err.Error())
-	}
-	return serverConfig, nil
+func loadServerConfigFromYaml(fileData []byte, serverConfig *common.ServerConfig) error {
+	return yaml.Unmarshal(fileData, serverConfig)
 }
