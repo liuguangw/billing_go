@@ -20,33 +20,23 @@ func (*RegisterHandler) GetType() byte {
 func (h *RegisterHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
 	//读取请求信息
-	var opData []byte
+	packetReader := common.NewPacketDataReader(request.OpData)
 	//用户名
-	offset := 0
-	usernameLength := request.OpData[offset]
+	usernameLength := packetReader.ReadByte()
 	tmpLength := int(usernameLength)
-	offset++
-	username := request.OpData[offset : offset+tmpLength]
+	username := packetReader.ReadBytes(tmpLength)
 	//超级密码
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	superPassword := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	superPassword := string(packetReader.ReadBytes(tmpLength))
 	//密码
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	password := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	password := string(packetReader.ReadBytes(tmpLength))
 	//注册IP
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	registerIP := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	registerIP := string(packetReader.ReadBytes(tmpLength))
 	//email
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	email := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	email := string(packetReader.ReadBytes(tmpLength))
 	//
 	account := &models.Account{
 		Name:     string(username),
@@ -68,7 +58,8 @@ func (h *RegisterHandler) GetResponse(request *common.BillingPacket) *common.Bil
 		regResult = 4
 		regResultTxt = err.Error()
 	}
-	h.Logger.Info(fmt.Sprintf("user [%v](%v) try to register from %v : %v", string(username), email, registerIP, regResultTxt))
+	h.Logger.Info(fmt.Sprintf("user [%s](%s) try to register from %s : %s", username, email, registerIP, regResultTxt))
+	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, regResult)

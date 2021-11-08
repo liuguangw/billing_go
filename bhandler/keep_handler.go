@@ -15,14 +15,15 @@ func (*KeepHandler) GetType() byte {
 }
 func (h *KeepHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-
-	usernameLength := request.OpData[0]
-	username := request.OpData[1 : 1+usernameLength]
-	offset := 1 + usernameLength
-	playerLevel := uint16(request.OpData[offset])
-	offset++
-	playerLevel += uint16(request.OpData[offset])
-	h.Logger.Info(fmt.Sprintf("keep: user [%v] level %v", string(username), playerLevel))
+	//读取请求信息
+	packetReader := common.NewPacketDataReader(request.OpData)
+	//用户名
+	usernameLength := packetReader.ReadByte()
+	tmpLength := int(usernameLength)
+	username := packetReader.ReadBytes(tmpLength)
+	//等级
+	playerLevel := packetReader.ReadUint16()
+	h.Logger.Info(fmt.Sprintf("keep: user [%s] level %d", username, playerLevel))
 	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

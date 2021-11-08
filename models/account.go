@@ -12,7 +12,7 @@ type Account struct {
 	Question sql.NullString
 	Answer   sql.NullString
 	Email    sql.NullString
-	Qq       sql.NullString
+	IDCard   sql.NullString
 	Point    int
 }
 

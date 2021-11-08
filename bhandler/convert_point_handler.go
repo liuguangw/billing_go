@@ -6,6 +6,7 @@ import (
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"go.uber.org/zap"
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 type ConvertPointHandler struct {
@@ -19,41 +20,31 @@ func (*ConvertPointHandler) GetType() byte {
 }
 func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-	var opData []byte
-	offset := 0
-	usernameLength := request.OpData[offset]
+	packetReader := common.NewPacketDataReader(request.OpData)
+	//用户名
+	usernameLength := packetReader.ReadByte()
 	tmpLength := int(usernameLength)
-	offset++
-	username := request.OpData[offset : offset+tmpLength]
-
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	loginIP := string(request.OpData[offset : offset+tmpLength])
-
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	charName := string(request.OpData[offset : offset+tmpLength])
-
-	//orderId 21u
-	offset += tmpLength
-	orderIDBytes := request.OpData[offset : offset+21]
-	// extraData 6u
-	offset += 21
-	extraDataBytes := request.OpData[offset : offset+6]
-	//跳过本身6字节+兑换点数的后2字节
-	offset += 8
-	//获取需要兑换的点数:4u
-	needPoint := 0
-	for i := 0; i < 4; i++ {
-		tmpInt := int(request.OpData[offset])
-		offset++
-		if i < 3 {
-			tmpInt = tmpInt << uint((3-i)*8)
-		}
-		needPoint += tmpInt
+	username := packetReader.ReadBytes(tmpLength)
+	//登录IP
+	tmpLength = int(packetReader.ReadByte())
+	loginIP := string(packetReader.ReadBytes(tmpLength))
+	//角色名
+	tmpLength = int(packetReader.ReadByte())
+	charNameGbkData := packetReader.ReadBytes(tmpLength)
+	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
+	charName, err := gbkDecoder.Bytes(charNameGbkData)
+	if err != nil {
+		h.Logger.Error("decode char name failed: " + err.Error())
+		charName = []byte("?")
 	}
+	//orderId 21u
+	orderIDBytes := packetReader.ReadBytes(21)
+	// extraData 6u
+	extraDataBytes := packetReader.ReadBytes(6)
+	//跳过兑换点数的后2字节
+	packetReader.Skip(2)
+	//获取需要兑换的点数:4u
+	needPoint := packetReader.ReadInt()
 	needPoint /= h.ConvertNumber
 	if needPoint < 0 {
 		needPoint = 0
@@ -88,11 +79,12 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		h.Logger.Error("convert point failed: " + err.Error())
 		realPoint = 0
 	} else {
-		h.Logger.Info(fmt.Sprintf("user [%s] %v(ip: %v) point total [%v], need point [%v]: %v-%v=%v",
+		h.Logger.Info(fmt.Sprintf("user [%s] %s(ip: %s) point total [%d], need point [%d]: %d-%d=%d",
 			username, charName, loginIP, userPoint, needPoint,
 			userPoint, realPoint, userPoint-realPoint))
 	}
 	// 数据包组合
+	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, orderIDBytes...)

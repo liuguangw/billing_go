@@ -19,6 +19,10 @@ func (h *TcpConnection) HandleConnection() {
 	go h.writePacketToClient(&wg, outputPacketChan)
 	//处理数据包
 	for packet := range inputPacketChan {
+		//记录packet
+		if packet.OpType != 0xA1 {
+			h.server.Logger.Info("====packet====\n" + packet.String())
+		}
 		//fmt.Printf("%+v\n", packet)
 		if handler, handlerExists := h.handlers[packet.OpType]; handlerExists {
 			response := handler.GetResponse(packet)

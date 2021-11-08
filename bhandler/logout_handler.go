@@ -16,14 +16,14 @@ func (*LogoutHandler) GetType() byte {
 }
 func (h *LogoutHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-	var opData []byte
-	offset := 0
-	usernameLength := request.OpData[offset]
+	packetReader := common.NewPacketDataReader(request.OpData)
+	//用户名
+	usernameLength := packetReader.ReadByte()
 	tmpLength := int(usernameLength)
-	offset++
-	username := request.OpData[offset : offset+tmpLength]
+	username := packetReader.ReadBytes(tmpLength)
 	// todo 更新在线状态
 	h.Logger.Info("user [" + string(username) + "] logout game")
+	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x1)

@@ -29,8 +29,8 @@ func CheckLogin(db *sql.DB, username, password string) error {
 	if account.Password != password {
 		return ErrorLoginInvalidPassword
 	}
-	if account.Qq.Valid {
-		if account.Qq.String == "1" {
+	if account.IDCard.Valid {
+		if account.IDCard.String == "1" {
 			return ErrorLoginAccountLocked
 		}
 	}

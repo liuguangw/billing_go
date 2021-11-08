@@ -10,8 +10,12 @@ func (*CostLogHandler) GetType() byte {
 }
 func (h *CostLogHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-	opData := request.OpData[0:21]
+	packetReader := common.NewPacketDataReader(request.OpData)
+	mSerialKeyLength := 21
+	mSerialKey := packetReader.ReadBytes(mSerialKeyLength)
 	//tools.LogMessage(fmt.Sprintf("CostLog - mSerial key=%s", string(opData)))
+	opData := make([]byte, 0, mSerialKeyLength+1)
+	opData = append(opData, mSerialKey...)
 	opData = append(opData, 0x01)
 	response.OpData = opData
 	return response

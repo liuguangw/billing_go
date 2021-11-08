@@ -17,25 +17,23 @@ type LoginHandler struct {
 func (*LoginHandler) GetType() byte {
 	return 0xA2
 }
+
 func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-	var opData []byte
+	packetReader := common.NewPacketDataReader(request.OpData)
 	//用户名
-	offset := 0
-	usernameLength := request.OpData[offset]
+	usernameLength := packetReader.ReadByte()
 	tmpLength := int(usernameLength)
-	offset++
-	username := request.OpData[offset : offset+tmpLength]
+	username := packetReader.ReadBytes(tmpLength)
 	//密码
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	password := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	password := string(packetReader.ReadBytes(tmpLength))
 	//登录IP
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	loginIP := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	loginIP := string(packetReader.ReadBytes(tmpLength))
+	//跳过level,密码卡数据
+	packetReader.Skip(2 + 6 + 6)
+	macMd5 := string(packetReader.ReadBytes(32))
 	var (
 		loginResult    byte = 1
 		loginResultTxt      = "success"
@@ -64,7 +62,8 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		loginResult = 3
 		loginResultTxt = models.ErrorLoginInvalidPassword.Error()
 	}
-	h.Logger.Info(fmt.Sprintf("user [%v] try to login from %v : %v", string(username), loginIP, loginResultTxt))
+	h.Logger.Info(fmt.Sprintf("user [%s] try to login from %s(Mac_md5=%s) : %s", username, loginIP, macMd5, loginResultTxt))
+	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, loginResult)

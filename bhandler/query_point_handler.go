@@ -6,6 +6,7 @@ import (
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"go.uber.org/zap"
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 type QueryPointHandler struct {
@@ -18,23 +19,23 @@ func (*QueryPointHandler) GetType() byte {
 }
 func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-	var opData []byte
+	packetReader := common.NewPacketDataReader(request.OpData)
 	//用户名
-	offset := 0
-	usernameLength := request.OpData[offset]
+	usernameLength := packetReader.ReadByte()
 	tmpLength := int(usernameLength)
-	offset++
-	username := request.OpData[offset : offset+tmpLength]
+	username := packetReader.ReadBytes(tmpLength)
 	//登录IP
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	loginIP := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	loginIP := string(packetReader.ReadBytes(tmpLength))
 	//角色名
-	offset += tmpLength
-	tmpLength = int(request.OpData[offset])
-	offset++
-	charName := string(request.OpData[offset : offset+tmpLength])
+	tmpLength = int(packetReader.ReadByte())
+	charNameGbkData := packetReader.ReadBytes(tmpLength)
+	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
+	charName, err := gbkDecoder.Bytes(charNameGbkData)
+	if err != nil {
+		h.Logger.Error("decode char name failed: " + err.Error())
+		charName = []byte("?")
+	}
 	// todo 更新在线状态
 	account, err := models.GetAccountByUsername(h.Db, string(username))
 	if err != nil {
@@ -44,7 +45,8 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	if account != nil {
 		accountPoint = (account.Point + 1) * 1000
 	}
-	h.Logger.Info(fmt.Sprintf("user [%v] %v query point (%v) at %v", string(username), charName, account.Point, loginIP))
+	h.Logger.Info(fmt.Sprintf("user [%s] %s query point (%d) at %s", username, charName, account.Point, loginIP))
+	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	var tmpByte byte
