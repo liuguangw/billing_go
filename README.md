@@ -1,6 +1,6 @@
 # billing_go[dev分支]
 
-这是一个用Go语言编写的billing验证服务器。
+这是一个用Go语言编写的billing验证服务器，此分支正在开发中，可能会有未知的问题。
 
 ## 运行环境要求
 
@@ -23,7 +23,7 @@
 
   - 已安装Git
 
-  - 已安装Go 1.12或者更高版本
+  - 已安装Go 1.17或者更高版本
 
     #### Windows环境下编译
 
@@ -41,46 +41,89 @@
 ```
 billing       - Linux版本的billing服务器
 billing.exe   - Windows版本的
-config.json  - 配置文件
+config.yaml   - 配置文件
 ```
 
-## 部署方法
+## 配置文件
 
-修改`config.json`中的相关配置
+配置文件和程序必须放在同一个目录下，配置文件支持两种格式`yaml`或者`json`，配置文件名称为`config.yaml`或者`config.json`，如果两个文件都存在，则`yaml`格式优先。
+
+### yaml格式的配置示例
+
+```yaml
+# #后面的为注释
+# 字符串可以不加引号,除非里面有#字符,所以如果数据库密码有#字符、空格时,就要加上引号
+#
+#billing服务器的ip，默认127.0.0.1即可
+ip: 127.0.0.1
+#
+#billing服务器监听的端口(自定义一个未被占用的端口即可)
+port: 12680
+#
+#MySQL服务器的ip或者主机名
+db_host: 127.0.0.1
+#
+#MySQL服务器端口
+db_port: 3306
+#
+#MySQL用户名
+db_user: root
+#
+#MySQL密码
+db_password: 'root'
+#
+#账号数据库名(一般为web)
+db_name: web
+#
+#只有在老版本MySQL报old_password错误时,才需要设置为true
+allow_old_password: false
+#
+#用户登录的账号不存在时,是否引导用户进行注册
+auto_reg: true
+#
+#允许的服务端连接ip,为空时表示允许任何ip,不为空时只允许指定的ip连接,
+#allow_ips:
+#  - 1.1.1.1
+#  - 127.0.0.1
+#
+#兑换参数，有的版本可能要设置为1才能正常兑换,有的则是1000
+transfer_number: 1000
+#
+#登录的玩家总数量限制,如果为0则表示无上限
+max_client_count: 500
+#
+#每台电脑最多可以同时登录的用户数量限制,如果为0则表示无上限
+pc_max_client_count: 3
+```
+
+
+
+### json格式的配置示例
 
 ```json
 {
-  "ip": "127.0.0.1",//billing服务器的ip，默认127.0.0.1即可
-  "port": 12680,//billing服务器监听的端口(自定义一个未被占用的端口即可)
-  "db_host": "127.0.0.1",//MySQL服务器的ip或者主机名
-  "db_port": 3306,//MySQL服务器端口
-  "db_user": "root",//MySQL用户名
-  "db_password": "root",//MySQL密码
-  "db_name": "web",//账号数据库名(一般为web)
-  "allow_old_password": false,//只有在老版本MySQL报old_password错误时,才需要设置为true
-  "auto_reg": true,//用户登录的账号不存在时,是否引导用户进行注册
-  "allow_ips": [],//允许的服务端连接ip,为空时表示允许任何ip,不为空时只允许指定的ip连接
-  "transfer_number": 1000 //兑换参数，有的版本可能要设置为1才能正常兑换,有的则是1000
+  "ip": "127.0.0.1",
+  "port": 12680,
+  "db_host": "127.0.0.1",
+  "db_port": 3306,
+  "db_user": "root",
+  "db_password": "root",
+  "db_name": "web",
+  "allow_old_password": false,
+  "auto_reg": true,
+  "allow_ips": [],
+  "transfer_number": 1000,
+  "max_client_count": 500,
+  "pc_max_client_count": 3
 }
 ```
 
 > 如果biiling和服务端位于同一台服务器的情况下，建议billing的IP使用127.0.0.1,这样可以避免绕一圈外网
 >
-> 本项目中附带的`config.json`的各项值为其默认值,如果你的配置中的值与默认值相同,则可以省略
+> 本项目中附带的配置文件各项值为其默认值,如果你的配置中的字段的值与默认值相同,则可以省略相同的字段配置
 >
-> 例如你的配置只有密码和端口和上方配置不同，则可以这样写
->
-> {
->
->   "port" : 12681,
->
->   "db_password" : "123456"
->
-> }
->
-> 如果你的配置和默认配置完全一样，则可以简写为 {}
 
-将`billing` (Windows服务器则是`billing.exe`)和`config.json`放置于同一目录下
+将`billing` (Windows服务器则是`billing.exe`)和配置文件放置于同一目录下
 
 修改游戏服务器的配置文件`....../tlbb/Server/Config/ServerInfo.ini`中billing的配置
 
@@ -131,14 +174,10 @@ Windows下,直接双击`billing.exe`即可
 
 ### 停止
 
-Linux停止billing命令
+停止billing命令
 
 ```bash
 ./billing stop
 ```
 
-Windows下关闭billing窗口即可
-
-## 其它语言的实现
-
-除了此版本外，我还有一个rust版本的实现，[点击这里](https://github.com/liuguangw/billing_rust)可以查看。
+如果是前台模式，可以使用Ctrl + C 组合键停止服务器
