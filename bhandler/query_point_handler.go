@@ -53,15 +53,14 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
-	var tmpByte byte
-	tmpByte = byte(accountPoint >> 24)
-	opData = append(opData, tmpByte)
-	tmpByte = byte((accountPoint >> 16) & 0xff)
-	opData = append(opData, tmpByte)
-	tmpByte = byte((accountPoint >> 8) & 0xff)
-	opData = append(opData, tmpByte)
-	tmpByte = byte(accountPoint & 0xff)
-	opData = append(opData, tmpByte)
+	for i := 0; i < 4; i++ {
+		tmpValue := accountPoint
+		movePos := (3 - i) * 8
+		if movePos > 0 {
+			tmpValue >>= movePos
+		}
+		opData = append(opData, byte(tmpValue&0xff))
+	}
 	response.OpData = opData
 	return response
 }

@@ -17,25 +17,18 @@ func (s *Server) initLogger() error {
 	}
 	//程序目录
 	appDir := filepath.Dir(mainAppPath)
-	var (
-		fileFlag     = os.O_APPEND | os.O_CREATE | os.O_WRONLY
-		logFilePaths = []string{
-			filepath.Join(appDir, "common.log"),
-			filepath.Join(appDir, "error.log"),
-		}
-		logFiles []*os.File
-	)
 	//打开日志文件
-	for _, logFilePath := range logFilePaths {
-		file, err := os.OpenFile(logFilePath, fileFlag, 0644)
-		if err != nil {
-			return errors.New("Open log file " + logFilePath + " failed: " + err.Error())
-		}
-		logFiles = append(logFiles, file)
+	logFilePath := filepath.Join(appDir, "billing.log")
+	fileFlag := os.O_APPEND | os.O_CREATE | os.O_WRONLY
+	logFile, err := os.OpenFile(logFilePath, fileFlag, 0644)
+	if err != nil {
+		return errors.New("Open log file " + logFilePath + " failed: " + err.Error())
 	}
-	//合并输出
-	commonWriteSyncer := zapcore.NewMultiWriteSyncer(zapcore.Lock(os.Stdout), zapcore.Lock(logFiles[0]))
-	errorWriteSyncer := zapcore.NewMultiWriteSyncer(zapcore.Lock(os.Stderr), zapcore.Lock(logFiles[1]))
+	var (
+		stdoutWriteSyncer = zapcore.Lock(os.Stdout)
+		stderrWriteSyncer = zapcore.Lock(os.Stderr)
+		fileWriteSyncer   = zapcore.Lock(logFile)
+	)
 	//普通日志的级别
 	commonPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl < zapcore.ErrorLevel
@@ -44,16 +37,21 @@ func (s *Server) initLogger() error {
 	errorPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= zapcore.ErrorLevel
 	})
+	//所有级别的日志
+	allPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return true
+	})
 	//日志格式设置
 	cfg := zap.NewDevelopmentEncoderConfig()
 	cfg.ConsoleSeparator = " "
 	cfg.EncodeTime = zapcore.TimeEncoderOfLayout("[2006-01-02 15:04:05 -0700]")
 	consoleEncoder := zapcore.NewConsoleEncoder(cfg)
 	core := zapcore.NewTee(
-		zapcore.NewCore(consoleEncoder, commonWriteSyncer, commonPriority),
-		zapcore.NewCore(consoleEncoder, errorWriteSyncer, errorPriority),
+		zapcore.NewCore(consoleEncoder, stdoutWriteSyncer, commonPriority),
+		zapcore.NewCore(consoleEncoder, stderrWriteSyncer, errorPriority),
+		zapcore.NewCore(consoleEncoder, fileWriteSyncer, allPriority),
 	)
-	s.logFiles = logFiles
+	s.logFile = logFile
 	s.logger = zap.New(core, zap.AddStacktrace(zapcore.WarnLevel))
 	return nil
 }

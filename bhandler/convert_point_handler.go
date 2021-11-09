@@ -44,10 +44,11 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	}
 	//orderId 21u
 	orderIDBytes := packetReader.ReadBytes(21)
-	// extraData 6u
-	extraDataBytes := packetReader.ReadBytes(6)
-	//跳过兑换点数的后2字节
-	packetReader.Skip(2)
+	mGoodsTypeNum := packetReader.ReadUint16() //始终为1
+	//物品类型
+	mGoodsType := packetReader.ReadInt()
+	//物品数量
+	mGoodsNumber := packetReader.ReadUint16()
 	//获取需要兑换的点数:4u
 	needPoint := packetReader.ReadInt()
 	needPoint /= h.ConvertNumber
@@ -93,11 +94,30 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, orderIDBytes...)
-	tmpBytes := []byte{0x00, 0x00, 0x00, 0x03, 0xE8}
-	opData = append(opData, tmpBytes...)
-	opData = append(opData, extraDataBytes...)
-	// 点数 2u
-	opData = append(opData, byte((realPoint&0xff00)>>8), byte(realPoint&0xff))
+	opData = append(opData, 0x00)
+	//写入剩余点数
+	leftPoint := (userPoint - realPoint) * h.ConvertNumber
+	for i := 0; i < 4; i++ {
+		tmpValue := leftPoint
+		movePos := (3 - i) * 8
+		if movePos > 0 {
+			tmpValue >>= movePos
+		}
+		opData = append(opData, byte(tmpValue&0xff))
+	}
+	//mGoodsTypeNum
+	opData = append(opData, byte((mGoodsTypeNum&0xff00)>>8), byte(mGoodsTypeNum&0xff))
+	// 写入mGoodsType
+	for i := 0; i < 4; i++ {
+		tmpValue := mGoodsType
+		movePos := (3 - i) * 8
+		if movePos > 0 {
+			tmpValue >>= movePos
+		}
+		opData = append(opData, byte(tmpValue&0xff))
+	}
+	//写入mGoodsNumber(购买的数量)
+	opData = append(opData, byte((mGoodsNumber&0xff00)>>8), byte(mGoodsNumber&0xff))
 	response.OpData = opData
 	return response
 }

@@ -15,7 +15,7 @@ func (s *Server) clean() {
 		s.logger.Sync()
 	}
 	//关闭打开的日志文件
-	for _, logFile := range s.logFiles {
-		logFile.Close()
+	if s.logFile != nil {
+		s.logFile.Close()
 	}
 }

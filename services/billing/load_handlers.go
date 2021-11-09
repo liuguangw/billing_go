@@ -25,7 +25,9 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 			MacCounters: s.macCounters,
 		},
 		&bhandler.ConnectHandler{},
-		&bhandler.PingHandler{},
+		&bhandler.PingHandler{
+			Logger: s.logger,
+		},
 		&bhandler.KeepHandler{
 			Logger: s.logger,
 		},

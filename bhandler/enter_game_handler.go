@@ -60,6 +60,9 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x1)
+	//填充byte+uint*3
+	emptyData := make([]byte, 13)
+	opData = append(opData, emptyData...)
 	response.OpData = opData
 	return response
 }
