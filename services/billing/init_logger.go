@@ -54,6 +54,6 @@ func (s *Server) initLogger() error {
 		zapcore.NewCore(consoleEncoder, errorWriteSyncer, errorPriority),
 	)
 	s.logFiles = logFiles
-	s.Logger = zap.New(core, zap.AddStacktrace(zapcore.WarnLevel))
+	s.logger = zap.New(core, zap.AddStacktrace(zapcore.WarnLevel))
 	return nil
 }

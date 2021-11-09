@@ -7,9 +7,9 @@ import (
 	"strconv"
 )
 
-// Stop 发送停止命令到server
-func (s *Server) Stop() error {
-	listenAddress := s.Config.IP + ":" + strconv.Itoa(s.Config.Port)
+// sendPacketToServer 发送Packet到server
+func (s *Server) sendPacketToServer(packet *common.BillingPacket) error {
+	listenAddress := s.config.IP + ":" + strconv.Itoa(s.config.Port)
 	serverEndpoint, err := net.ResolveTCPAddr("tcp", listenAddress)
 	if err != nil {
 		return errors.New("resolve TCPAddr failed: " + err.Error())
@@ -19,13 +19,17 @@ func (s *Server) Stop() error {
 		return errors.New("connect to billing failed: " + err.Error())
 	}
 	defer tcpConn.Close()
-	sendData := &common.BillingPacket{
-		MsgID:  [2]byte{0, 0},
-		OpData: []byte("close billing"),
-	}
-	_, err = tcpConn.Write(sendData.PackData())
-	if err != nil {
-		return errors.New("stop billing failed: " + err.Error())
+	if _, err = tcpConn.Write(packet.PackData()); err != nil {
+		return errors.New("send packet failed: " + err.Error())
 	}
 	return nil
+}
+
+// Stop 发送停止命令到server
+func (s *Server) Stop() error {
+	packet := &common.BillingPacket{
+		MsgID:  [2]byte{0, 0},
+		OpData: []byte("close"),
+	}
+	return s.sendPacketToServer(packet)
 }

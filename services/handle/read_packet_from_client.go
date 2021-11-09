@@ -1,4 +1,4 @@
-package billing
+package handle
 
 import (
 	"github.com/liuguangw/billing_go/common"
@@ -6,7 +6,7 @@ import (
 )
 
 //readPacketFromClient 读取billing包,并把它放到packetChan中
-func (h *TcpConnection) readPacketFromClient(packetChan chan<- *common.BillingPacket) {
+func (h *ConnHandle) readPacketFromClient(packetChan chan<- *common.BillingPacket) {
 	defer close(packetChan)
 	var (
 		clientData = make([]byte, 0, 1024) //所有数据
@@ -16,13 +16,13 @@ func (h *TcpConnection) readPacketFromClient(packetChan chan<- *common.BillingPa
 		n, err := h.tcpConn.Read(buff)
 		if err != nil {
 			//读取错误
-			if h.server.Running() {
+			if h.server.Running() && !h.isCommandClient {
 				clientAddrStr := h.tcpConn.RemoteAddr().String()
 				if err == io.EOF {
-					h.server.Logger.Info("client " + clientAddrStr + " disconnected")
+					h.logger.Info("client " + clientAddrStr + " disconnected")
 				} else {
 					//记录读取错误
-					h.server.Logger.Error("read from client " + clientAddrStr + " failed: " + err.Error())
+					h.logger.Error("read from client " + clientAddrStr + " failed: " + err.Error())
 				}
 			}
 			return
@@ -33,7 +33,7 @@ func (h *TcpConnection) readPacketFromClient(packetChan chan<- *common.BillingPa
 			clientData = append(clientData, buff[:n]...)
 			packTotalSize, readErr := h.readPacket(clientData, packetChan)
 			if readErr != nil {
-				h.server.Logger.Error(readErr.Error())
+				h.logger.Error(readErr.Error())
 				return
 			}
 			//删除已经读取过的数据
@@ -44,7 +44,7 @@ func (h *TcpConnection) readPacketFromClient(packetChan chan<- *common.BillingPa
 	}
 }
 
-func (h *TcpConnection) readPacket(clientData []byte, packetChan chan<- *common.BillingPacket) (int, error) {
+func (h *ConnHandle) readPacket(clientData []byte, packetChan chan<- *common.BillingPacket) (int, error) {
 	packTotalSize := 0
 	for {
 		//解析数据包
@@ -58,6 +58,10 @@ func (h *TcpConnection) readPacket(clientData []byte, packetChan chan<- *common.
 		}
 		packTotalSize += packet.FullLength()
 		packetChan <- packet
+		//标记
+		if packet.OpType == 0 {
+			h.isCommandClient = true
+		}
 	}
 	return packTotalSize, nil
 }

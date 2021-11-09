@@ -34,6 +34,5 @@ func CheckLogin(db *sql.DB, username, password string) error {
 			return ErrorLoginAccountLocked
 		}
 	}
-	//todo online
 	return nil
 }

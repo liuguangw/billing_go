@@ -5,31 +5,36 @@ import (
 	"fmt"
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
+	"github.com/liuguangw/billing_go/services"
 	"go.uber.org/zap"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
+// ConvertPointHandler 处理点数兑换
 type ConvertPointHandler struct {
 	Db            *sql.DB
 	Logger        *zap.Logger
 	ConvertNumber int
 }
 
+// GetType 可以处理的消息类型
 func (*ConvertPointHandler) GetType() byte {
 	return 0xE1
 }
+
+// GetResponse 根据请求获得响应
 func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-	packetReader := common.NewPacketDataReader(request.OpData)
+	packetReader := services.NewPacketDataReader(request.OpData)
 	//用户名
-	usernameLength := packetReader.ReadByte()
+	usernameLength := packetReader.ReadByteValue()
 	tmpLength := int(usernameLength)
 	username := packetReader.ReadBytes(tmpLength)
 	//登录IP
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	loginIP := string(packetReader.ReadBytes(tmpLength))
 	//角色名
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	charNameGbkData := packetReader.ReadBytes(tmpLength)
 	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
 	charName, err := gbkDecoder.Bytes(charNameGbkData)

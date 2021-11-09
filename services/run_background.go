@@ -6,6 +6,7 @@ import (
 	"os/exec"
 )
 
+// RunBillingAtBackground 在后台运行程序
 func RunBillingAtBackground(billingPath string) error {
 	cmd := exec.Command(billingPath)
 	// 重定向输出文件

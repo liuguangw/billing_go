@@ -5,37 +5,41 @@ import (
 	"fmt"
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
+	"github.com/liuguangw/billing_go/services"
 	"go.uber.org/zap"
 )
 
+// RegisterHandler 用户注册
 type RegisterHandler struct {
 	Db     *sql.DB
 	Logger *zap.Logger
 }
 
+// GetType 可以处理的消息类型
 func (*RegisterHandler) GetType() byte {
 	return 0xF1
 }
 
+// GetResponse 根据请求获得响应
 func (h *RegisterHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
 	//读取请求信息
-	packetReader := common.NewPacketDataReader(request.OpData)
+	packetReader := services.NewPacketDataReader(request.OpData)
 	//用户名
-	usernameLength := packetReader.ReadByte()
+	usernameLength := packetReader.ReadByteValue()
 	tmpLength := int(usernameLength)
 	username := packetReader.ReadBytes(tmpLength)
 	//超级密码
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	superPassword := string(packetReader.ReadBytes(tmpLength))
 	//密码
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	password := string(packetReader.ReadBytes(tmpLength))
 	//注册IP
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	registerIP := string(packetReader.ReadBytes(tmpLength))
 	//email
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	email := string(packetReader.ReadBytes(tmpLength))
 	//
 	account := &models.Account{

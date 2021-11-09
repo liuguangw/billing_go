@@ -11,7 +11,7 @@ func GetAccountByUsername(db *sql.DB, username string) (*Account, error) {
 	if err := row.Err(); err != nil {
 		return nil, err
 	}
-	if err := row.Scan(&account.Id, &account.Name, &account.Password,
+	if err := row.Scan(&account.ID, &account.Name, &account.Password,
 		&account.Question, &account.Answer, &account.Email, &account.IDCard, &account.Point); err != nil {
 		if err == sql.ErrNoRows {
 			// 查询不到此用户名的记录

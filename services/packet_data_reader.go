@@ -1,4 +1,4 @@
-package common
+package services
 
 // PacketDataReader 用于读取[]byte数据的工具
 type PacketDataReader struct {
@@ -6,12 +6,13 @@ type PacketDataReader struct {
 	offset     int
 }
 
+// NewPacketDataReader 初始化读取[]byte数据的工具
 func NewPacketDataReader(binaryData []byte) *PacketDataReader {
 	return &PacketDataReader{binaryData: binaryData}
 }
 
-// ReadByte 读取一个字节
-func (r *PacketDataReader) ReadByte() byte {
+// ReadByteValue 读取一个字节
+func (r *PacketDataReader) ReadByteValue() byte {
 	r.offset++
 	return r.binaryData[r.offset-1]
 }

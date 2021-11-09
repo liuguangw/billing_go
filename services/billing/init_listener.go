@@ -6,10 +6,10 @@ import (
 	"strconv"
 )
 
-// initListener 初始化Tcp Listener
+// initListener 初始化Tcp listener
 func (s *Server) initListener() error {
 	//监听的TCP地址端口
-	listenAddress := s.Config.IP + ":" + strconv.Itoa(s.Config.Port)
+	listenAddress := s.config.IP + ":" + strconv.Itoa(s.config.Port)
 	serverEndpoint, err := net.ResolveTCPAddr("tcp", listenAddress)
 	if err != nil {
 		return errors.New("resolve TCPAddr failed: " + err.Error())
@@ -19,6 +19,6 @@ func (s *Server) initListener() error {
 	if err != nil {
 		return err
 	}
-	s.Listener = listener
+	s.listener = listener
 	return nil
 }

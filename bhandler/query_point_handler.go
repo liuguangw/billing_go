@@ -5,30 +5,35 @@ import (
 	"fmt"
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
+	"github.com/liuguangw/billing_go/services"
 	"go.uber.org/zap"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
+// QueryPointHandler 查询点数
 type QueryPointHandler struct {
 	Db     *sql.DB
 	Logger *zap.Logger
 }
 
+// GetType 可以处理的消息类型
 func (*QueryPointHandler) GetType() byte {
 	return 0xE2
 }
+
+// GetResponse 根据请求获得响应
 func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
-	packetReader := common.NewPacketDataReader(request.OpData)
+	packetReader := services.NewPacketDataReader(request.OpData)
 	//用户名
-	usernameLength := packetReader.ReadByte()
+	usernameLength := packetReader.ReadByteValue()
 	tmpLength := int(usernameLength)
 	username := packetReader.ReadBytes(tmpLength)
 	//登录IP
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	loginIP := string(packetReader.ReadBytes(tmpLength))
 	//角色名
-	tmpLength = int(packetReader.ReadByte())
+	tmpLength = int(packetReader.ReadByteValue())
 	charNameGbkData := packetReader.ReadBytes(tmpLength)
 	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
 	charName, err := gbkDecoder.Bytes(charNameGbkData)
@@ -36,7 +41,6 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 		h.Logger.Error("decode char name failed: " + err.Error())
 		charName = []byte("?")
 	}
-	// todo 更新在线状态
 	account, err := models.GetAccountByUsername(h.Db, string(username))
 	if err != nil {
 		h.Logger.Error("get account:" + string(username) + " info failed: " + err.Error())
