@@ -38,7 +38,13 @@ func (h *ConnHandle) readPacketFromClient(packetChan chan<- *common.BillingPacke
 			}
 			//删除已经读取过的数据
 			if packTotalSize > 0 {
-				clientData = clientData[packTotalSize:]
+				clientDataSize := len(clientData)
+				if packTotalSize < clientDataSize {
+					//把剩余数据copy到前面
+					copy(clientData, clientData[packTotalSize:])
+				}
+				//调整length
+				clientData = clientData[:clientDataSize-packTotalSize]
 			}
 		}
 	}

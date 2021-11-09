@@ -15,7 +15,7 @@ type Server struct {
 	running     bool                 //是否正在运行
 	database    *sql.DB              //数据库连接
 	listener    *net.TCPListener     //tcp listener
-	logFile    *os.File           //已打开的日志文件
+	logFile     *os.File             //已打开的日志文件
 	logger      *zap.Logger          //日志对象
 	handlers    map[byte]common.PacketHandler
 	loginUsers  map[string]*common.ClientInfo //已登录,还未进入游戏的用户
