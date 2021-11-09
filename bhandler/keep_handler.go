@@ -33,9 +33,6 @@ func (h *KeepHandler) GetResponse(request *common.BillingPacket) *common.Billing
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x01)
-	//填充uint*3
-	emptyData := make([]byte, 12)
-	opData = append(opData, emptyData...)
 	response.OpData = opData
 	return response
 }
