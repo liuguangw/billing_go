@@ -1,6 +1,7 @@
 package billing
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	//MySQL 驱动
@@ -27,7 +28,9 @@ func (s *Server) initDatabase() error {
 	db.SetMaxOpenConns(100)
 	db.SetMaxIdleConns(10)
 	// 判断连接状态
-	if err := db.Ping(); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
+	defer cancel()
+	if err := db.PingContext(ctx); err != nil {
 		return err
 	}
 	//获取版本信息

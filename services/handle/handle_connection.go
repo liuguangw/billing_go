@@ -6,8 +6,13 @@ import (
 
 //HandleConnection 处理TCP连接
 func (h *ConnHandle) HandleConnection() {
-	clientAddrStr := h.tcpConn.RemoteAddr().String()
-	h.logger.Info("client " + clientAddrStr + " connected")
+	clientAddr := h.tcpConn.RemoteAddr()
+	//判断是否允许此IP连接
+	if !h.allowAddr(clientAddr.String()) {
+		h.logger.Warn("client " + clientAddr.String() + " is not allowed to connect")
+		return
+	}
+	h.logger.Info("client " + clientAddr.String() + " connected")
 	//keepalive
 	if err := h.tcpConn.SetKeepAlive(true); err != nil {
 		h.logger.Error("SetKeepAlive failed: " + err.Error())

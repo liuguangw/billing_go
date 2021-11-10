@@ -25,9 +25,10 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	//处理./billing stop
+	//命令
 	if len(os.Args) > 1 {
 		commandStr := os.Args[1]
+		//处理./billing stop
 		if commandStr == "stop" {
 			fmt.Println("stoping billing server ...")
 			if err := server.Stop(); err != nil {
@@ -36,6 +37,7 @@ func main() {
 			fmt.Println("stop command sent successfully")
 			return
 		}
+		//./billing show_users
 		if commandStr == "show_users" {
 			fmt.Println("show users log ...")
 			if err := server.ShowUsers(); err != nil {

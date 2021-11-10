@@ -61,7 +61,7 @@ ip: 127.0.0.1
 port: 12680
 #
 #MySQL服务器的ip或者主机名
-db_host: 127.0.0.1
+db_host: localhost
 #
 #MySQL服务器端口
 db_port: 3306
@@ -104,7 +104,7 @@ pc_max_client_count: 3
 {
   "ip": "127.0.0.1",
   "port": 12680,
-  "db_host": "127.0.0.1",
+  "db_host": "localhost",
   "db_port": 3306,
   "db_user": "root",
   "db_password": "root",
