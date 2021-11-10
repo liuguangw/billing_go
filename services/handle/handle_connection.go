@@ -6,6 +6,7 @@ import (
 
 //HandleConnection 处理TCP连接
 func (h *ConnHandle) HandleConnection() {
+	defer h.tcpConn.Close()
 	clientAddr := h.tcpConn.RemoteAddr()
 	//判断是否允许此IP连接
 	if !h.allowAddr(clientAddr.String()) {
@@ -25,11 +26,10 @@ func (h *ConnHandle) HandleConnection() {
 	go h.writePacketToClient(outputPacketChan)
 	//处理inputPacketChan中的数据包
 	for packet := range inputPacketChan {
-		//记录packet
-		if packet.OpType != 0xA1 {
+		//[debug]记录packet
+		/*if packet.OpType != 0xA1 {
 			h.logger.Info("====packet====\n" + packet.String())
-		}
-		//fmt.Printf("%+v\n", packet)
+		}*/
 		if handler, handlerExists := h.handlers[packet.OpType]; handlerExists {
 			response := handler.GetResponse(packet)
 			//把response放到输出channel中

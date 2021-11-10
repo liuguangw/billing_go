@@ -9,7 +9,7 @@ allow_old_password: false
 auto_reg: true
 #allow_ips:
 #  - 127.0.0.1
-#  - 1.1.1.1
+#  - 192.168.10.3
 transfer_number: 1000
 max_client_count: 500
 pc_max_client_count: 3

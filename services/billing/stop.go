@@ -9,7 +9,12 @@ import (
 
 // sendPacketToServer 发送Packet到server
 func (s *Server) sendPacketToServer(packet *common.BillingPacket) error {
-	listenAddress := s.config.IP + ":" + strconv.Itoa(s.config.Port)
+	//如果监听的是0.0.0.0, 发送命令时应该发送到127.0.0.1
+	serverIP := s.config.IP
+	if serverIP == "0.0.0.0" {
+		serverIP = "127.0.0.1"
+	}
+	listenAddress := serverIP + ":" + strconv.Itoa(s.config.Port)
 	serverEndpoint, err := net.ResolveTCPAddr("tcp", listenAddress)
 	if err != nil {
 		return errors.New("resolve TCPAddr failed: " + err.Error())

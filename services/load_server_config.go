@@ -15,7 +15,7 @@ func defaultServerConfig() *common.ServerConfig {
 	return &common.ServerConfig{
 		IP:               "127.0.0.1",
 		Port:             12680,
-		DbHost:           "127.0.0.1",
+		DbHost:           "localhost",
 		DbPort:           3306,
 		DbUser:           "root",
 		DbPassword:       "root",
