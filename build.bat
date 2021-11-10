@@ -4,7 +4,13 @@ SET GOARCH=386
 SET GO111MODULE=on
 SET GOPROXY=https://goproxy.cn
 SET PROJECT_NAME=billing
-
+SET appVersion=1.3.0
+SET gitCommitHash=
+FOR /F %%a IN ('git rev-parse HEAD') DO SET "gitCommitHash=%%a"
+SET SERVICES_PKG=github.com/liuguangw/billing_go/services
+SET buildLdFlags=-X %SERVICES_PKG%.appVersion=%appVersion%
+SET buildLdFlags=%buildLdFlags% -X '%SERVICES_PKG%.appBuildTime=%date% %time%'
+SET buildLdFlags=%buildLdFlags% -X %SERVICES_PKG%.gitCommitHash=%gitCommitHash%
 
 FOR %%a IN (linux,windows) DO (
   call :buildCommand %%a
@@ -25,7 +31,7 @@ if "%GOOS%" == "windows" (
 ) else if not "%GOOS%" == "linux" (
     SET TARGET_FILE=%TARGET_FILE%_%GOOS%
 )
-go build -ldflags "-s -w" -a -o %TARGET_FILE% .
+go build -ldflags "-s -w %buildLdFlags%" -a -o %TARGET_FILE% .
 if %ERRORLEVEL% NEQ 0 (
 	pause
 	exit

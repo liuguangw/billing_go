@@ -3,10 +3,10 @@ package billing
 import (
 	"context"
 	"github.com/liuguangw/billing_go/common"
+	"github.com/liuguangw/billing_go/services"
 	"log"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
 )
 
@@ -18,8 +18,7 @@ func (s *Server) Run() {
 	}
 	defer s.clean()
 	//输出build信息
-	s.logger.Info("powered by liuguang @github https://github.com/liuguangw")
-	s.logger.Info("build by " + runtime.Version())
+	services.ShowVersionInfo(s.logger)
 	//初始化tcp连接
 	if err := s.initListener(); err != nil {
 		s.logger.Fatal("init listener failed: " + err.Error())
