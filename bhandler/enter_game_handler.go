@@ -40,20 +40,11 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 		h.Logger.Error("decode char name failed: " + err.Error())
 		charName = []byte("?")
 	}
-	//更新在线状态
-	usernameStr := string(username)
-	if clientInfo, userLogin := h.LoginUsers[usernameStr]; userLogin {
-		delete(h.LoginUsers, usernameStr)
-		clientInfo.CharName = string(charName)
-		h.OnlineUsers[usernameStr] = clientInfo
-		macMd5 := clientInfo.MacMd5
-		macCounter := 0
-		if value, valueExists := h.MacCounters[macMd5]; valueExists {
-			macCounter = value
-		}
-		macCounter++
-		h.MacCounters[macMd5] = macCounter
+	//标记在线
+	clientInfo := &common.ClientInfo{
+		CharName: string(charName),
 	}
+	markOnline(h.LoginUsers, h.OnlineUsers, h.MacCounters, string(username), clientInfo)
 	//
 	h.Logger.Info("user [" + string(username) + "] " + string(charName) + " entered game")
 	var opData []byte

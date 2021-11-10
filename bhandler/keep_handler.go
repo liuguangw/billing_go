@@ -9,7 +9,10 @@ import (
 
 // KeepHandler keep
 type KeepHandler struct {
-	Logger *zap.Logger
+	Logger      *zap.Logger
+	LoginUsers  map[string]*common.ClientInfo //已登录,还未进入游戏的用户
+	OnlineUsers map[string]*common.ClientInfo //已进入游戏的用户
+	MacCounters map[string]int                //已进入游戏的用户的mac地址计数器
 }
 
 // GetType 可以处理的消息类型
@@ -28,6 +31,9 @@ func (h *KeepHandler) GetResponse(request *common.BillingPacket) *common.Billing
 	username := packetReader.ReadBytes(tmpLength)
 	//等级
 	playerLevel := packetReader.ReadUint16()
+	//标记在线
+	clientInfo := &common.ClientInfo{}
+	markOnline(h.LoginUsers, h.OnlineUsers, h.MacCounters, string(username), clientInfo)
 	h.Logger.Info(fmt.Sprintf("keep: user [%s] level %d", username, playerLevel))
 	var opData []byte
 	opData = append(opData, usernameLength)

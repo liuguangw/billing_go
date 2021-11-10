@@ -12,8 +12,11 @@ import (
 
 // QueryPointHandler 查询点数
 type QueryPointHandler struct {
-	Db     *sql.DB
-	Logger *zap.Logger
+	Db          *sql.DB
+	Logger      *zap.Logger
+	LoginUsers  map[string]*common.ClientInfo //已登录,还未进入游戏的用户
+	OnlineUsers map[string]*common.ClientInfo //已进入游戏的用户
+	MacCounters map[string]int                //已进入游戏的用户的mac地址计数器
 }
 
 // GetType 可以处理的消息类型
@@ -45,6 +48,13 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	if err != nil {
 		h.Logger.Error("get account:" + string(username) + " info failed: " + err.Error())
 	}
+	//标记在线
+	clientInfo := &common.ClientInfo{
+		IP:       loginIP,
+		CharName: string(charName),
+	}
+	markOnline(h.LoginUsers, h.OnlineUsers, h.MacCounters, string(username), clientInfo)
+	//
 	var accountPoint = 0
 	if account != nil {
 		accountPoint = (account.Point + 1) * 1000

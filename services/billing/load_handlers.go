@@ -29,7 +29,10 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 			Logger: s.logger,
 		},
 		&bhandler.KeepHandler{
-			Logger: s.logger,
+			Logger:      s.logger,
+			LoginUsers:  s.loginUsers,
+			OnlineUsers: s.onlineUsers,
+			MacCounters: s.macCounters,
 		},
 		&bhandler.LoginHandler{
 			Db:               s.database,
@@ -43,7 +46,8 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 		},
 		&bhandler.RegisterHandler{
 			Db:     s.database,
-			Logger: s.logger},
+			Logger: s.logger,
+		},
 		&bhandler.EnterGameHandler{
 			Db:          s.database,
 			Logger:      s.logger,
@@ -60,12 +64,22 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 		},
 		&bhandler.KickHandler{},
 		&bhandler.QueryPointHandler{
-			Db:     s.database,
-			Logger: s.logger},
+			Db:          s.database,
+			Logger:      s.logger,
+			LoginUsers:  s.loginUsers,
+			OnlineUsers: s.onlineUsers,
+			MacCounters: s.macCounters,
+		},
 		&bhandler.ConvertPointHandler{
 			Db:            s.database,
 			Logger:        s.logger,
-			ConvertNumber: s.config.TransferNumber},
-		&bhandler.CostLogHandler{},
+			ConvertNumber: s.config.TransferNumber,
+		},
+		&bhandler.CostLogHandler{
+			Logger:      s.logger,
+			LoginUsers:  s.loginUsers,
+			OnlineUsers: s.onlineUsers,
+			MacCounters: s.macCounters,
+		},
 	)
 }

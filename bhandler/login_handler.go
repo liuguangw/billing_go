@@ -9,6 +9,24 @@ import (
 	"go.uber.org/zap"
 )
 
+//登录结果定义
+const (
+	// loginCodeSuccess 登录成功
+	loginCodeSuccess byte = 0x01
+	// loginCodeNoAccount 账号不存在
+	loginCodeNoAccount byte = 0x02
+	// loginCodeWrongPassword 密码错误
+	loginCodeWrongPassword byte = 0x03
+	// loginCodeUserOnline 用户在线
+	loginCodeUserOnline byte = 0x04
+	// loginCodeOtherError 其它错误
+	loginCodeOtherError byte = 0x06
+	// loginCodeForbit 禁止登录
+	loginCodeForbit byte = 0x07
+	// loginCodeShowRegister 显示注册窗口
+	loginCodeShowRegister byte = 0x09
+)
+
 // LoginHandler 登录
 type LoginHandler struct {
 	Db               *sql.DB
@@ -43,40 +61,37 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 	//跳过level,密码卡数据
 	packetReader.Skip(2 + 6 + 6)
 	macMd5 := string(packetReader.ReadBytes(32))
+	//初始化
 	var (
-		loginResult    byte = 1
-		loginResultTxt      = "success"
+		loginResult    = loginCodeSuccess
+		loginResultTxt = "success"
 	)
-	if err := models.CheckLogin(h.Db, string(username), password); err != nil {
+	if err := models.CheckLogin(h.Db, h.OnlineUsers, string(username), password); err != nil {
 		loginResultTxt = err.Error()
 		if err == models.ErrorLoginUserNotFound {
-			//用户不存在,展示注册
-			loginResult = 9
+			//用户不存在
+			loginResult = loginCodeNoAccount
 		} else if err == models.ErrorLoginInvalidPassword {
 			//密码错误
-			loginResult = 3
+			loginResult = loginCodeWrongPassword
 		} else if err == models.ErrorLoginAccountLocked {
 			//停权
-			loginResult = 7
+			loginResult = loginCodeForbit
+		} else if err == models.ErrorLoginAccountOnline {
+			//用户已在线
+			loginResult = loginCodeUserOnline
 		} else {
 			//数据库异常
-			loginResult = 6
+			loginResult = loginCodeOtherError
 		}
 	}
-	// 如果未开启自动注册,当用户不存在时会返回密码错误
-	if (!h.AutoReg) && (loginResult == 9) {
-		loginResult = 3
-		loginResultTxt = models.ErrorLoginInvalidPassword.Error()
-	}
-	//判断用户是否在线
-	if loginResult == 1 {
-		if _, userOnline := h.OnlineUsers[string(username)]; userOnline {
-			loginResult = 4
-			loginResultTxt = models.ErrorLoginAccountOnline.Error()
-		}
+	// 如果开启了自动注册
+	if loginResult == loginCodeNoAccount && h.AutoReg {
+		loginResult = loginCodeShowRegister
+		loginResultTxt = "show register dialog"
 	}
 	//判断连接的用户数是否达到限制
-	if loginResult == 1 && h.MaxClientCount > 0 {
+	if loginResult == loginCodeSuccess && h.MaxClientCount > 0 {
 		currentCount := len(h.OnlineUsers)
 		if currentCount >= h.MaxClientCount {
 			loginResult = 6
@@ -84,7 +99,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		}
 	}
 	//判断此电脑的连接数是否达到限制
-	if loginResult == 1 && h.PcMaxClientCount > 0 {
+	if loginResult == loginCodeSuccess && h.PcMaxClientCount > 0 {
 		macCounter := 0
 		if value, valueExists := h.MacCounters[macMd5]; valueExists {
 			macCounter = value
@@ -95,7 +110,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		}
 	}
 	//将用户信息写入LoginUsers
-	if loginResult == 1 || loginResult == 9 {
+	if loginResult == loginCodeSuccess || loginResult == loginCodeShowRegister {
 		h.LoginUsers[string(username)] = &common.ClientInfo{
 			IP:     loginIP,
 			MacMd5: macMd5,
