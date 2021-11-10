@@ -1,6 +1,6 @@
-# billing_go[dev分支]
+# billing_go
 
-这是一个用Go语言编写的billing验证服务器，此分支正在开发中，可能会有未知的问题。
+这是一个用Go语言编写的billing验证服务器。
 
 ## 运行环境要求
 
@@ -95,8 +95,6 @@ max_client_count: 500
 #每台电脑最多可以同时登录的用户数量限制,如果为0则表示无上限
 pc_max_client_count: 3
 ```
-
-
 
 ### json格式的配置示例
 
