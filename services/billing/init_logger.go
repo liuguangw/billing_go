@@ -2,6 +2,7 @@ package billing
 
 import (
 	"errors"
+	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -25,8 +26,8 @@ func (s *Server) initLogger() error {
 		return errors.New("Open log file " + logFilePath + " failed: " + err.Error())
 	}
 	var (
-		stdoutWriteSyncer = zapcore.Lock(os.Stdout)
-		stderrWriteSyncer = zapcore.Lock(os.Stderr)
+		stdoutWriteSyncer = zapcore.AddSync(colorable.NewColorableStdout())
+		stderrWriteSyncer = zapcore.AddSync(colorable.NewColorableStderr())
 		fileWriteSyncer   = zapcore.Lock(logFile)
 	)
 	//普通日志的级别
@@ -45,11 +46,16 @@ func (s *Server) initLogger() error {
 	cfg := zap.NewDevelopmentEncoderConfig()
 	cfg.ConsoleSeparator = " "
 	cfg.EncodeTime = zapcore.TimeEncoderOfLayout("[2006-01-02 15:04:05 -0700]")
-	consoleEncoder := zapcore.NewConsoleEncoder(cfg)
+	//控制台可以显示颜色
+	consoleCfg := cfg
+	consoleCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	//
+	fileEncoder := zapcore.NewConsoleEncoder(cfg)
+	consoleEncoder := zapcore.NewConsoleEncoder(consoleCfg)
 	core := zapcore.NewTee(
 		zapcore.NewCore(consoleEncoder, stdoutWriteSyncer, commonPriority),
 		zapcore.NewCore(consoleEncoder, stderrWriteSyncer, errorPriority),
-		zapcore.NewCore(consoleEncoder, fileWriteSyncer, allPriority),
+		zapcore.NewCore(fileEncoder, fileWriteSyncer, allPriority),
 	)
 	s.logFile = logFile
 	s.logger = zap.New(core, zap.AddStacktrace(zapcore.WarnLevel))
