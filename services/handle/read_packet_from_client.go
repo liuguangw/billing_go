@@ -3,21 +3,22 @@ package handle
 import (
 	"github.com/liuguangw/billing_go/common"
 	"io"
+	"net"
 )
 
 //readPacketFromClient 读取billing包,并把它放到packetChan中
-func (h *ConnHandle) readPacketFromClient(packetChan chan<- *common.BillingPacket) {
+func (h *ConnHandle) readPacketFromClient(tcpConn *net.TCPConn, packetChan chan<- *common.BillingPacket) {
 	defer close(packetChan)
 	var (
 		clientData = make([]byte, 0, 1024) //所有数据
 		buff       = make([]byte, 1024)    //每次读取的缓冲区
 	)
 	for {
-		n, err := h.tcpConn.Read(buff)
+		n, err := tcpConn.Read(buff)
 		if err != nil {
 			//读取错误
 			if h.server.Running() && !h.isCommandClient {
-				clientAddrStr := h.tcpConn.RemoteAddr().String()
+				clientAddrStr := tcpConn.RemoteAddr().String()
 				if err == io.EOF {
 					h.logger.Info("client " + clientAddrStr + " disconnected")
 				} else {

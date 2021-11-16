@@ -2,12 +2,13 @@ package handle
 
 import (
 	"github.com/liuguangw/billing_go/common"
+	"net"
 )
 
 //HandleConnection 处理TCP连接
-func (h *ConnHandle) HandleConnection() {
-	defer h.tcpConn.Close()
-	clientAddr := h.tcpConn.RemoteAddr()
+func (h *ConnHandle) HandleConnection(tcpConn *net.TCPConn) {
+	defer tcpConn.Close()
+	clientAddr := tcpConn.RemoteAddr()
 	//判断是否允许此IP连接
 	if !h.allowAddr(clientAddr.String()) {
 		h.logger.Warn("client " + clientAddr.String() + " is not allowed to connect")
@@ -15,15 +16,15 @@ func (h *ConnHandle) HandleConnection() {
 	}
 	h.logger.Info("client " + clientAddr.String() + " connected")
 	//keepalive
-	if err := h.tcpConn.SetKeepAlive(true); err != nil {
+	if err := tcpConn.SetKeepAlive(true); err != nil {
 		h.logger.Error("SetKeepAlive failed: " + err.Error())
 	}
 	var (
 		inputPacketChan  = make(chan *common.BillingPacket, 50)
 		outputPacketChan = make(chan *common.BillingPacket, 50)
 	)
-	go h.readPacketFromClient(inputPacketChan)
-	go h.writePacketToClient(outputPacketChan)
+	go h.readPacketFromClient(tcpConn, inputPacketChan)
+	go h.writePacketToClient(tcpConn, outputPacketChan)
 	//处理inputPacketChan中的数据包
 	for packet := range inputPacketChan {
 		//[debug]记录packet

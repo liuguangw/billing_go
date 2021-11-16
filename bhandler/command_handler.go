@@ -26,9 +26,13 @@ func (*CommandHandler) GetType() byte {
 func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
 	response.OpData = []byte{0, 0}
+	//./billing show_users
+	//获取billing中用户列表状态
 	if bytes.Compare(request.OpData, []byte("show_users")) == 0 {
 		h.showUsers(response)
 	} else {
+		//./billing stop
+		//关闭billing服务
 		//执行cancel后, Server.Run()中的ctx.Done()会达成,主协程会退出
 		h.Cancel()
 	}

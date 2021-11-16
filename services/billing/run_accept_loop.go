@@ -19,7 +19,7 @@ func (s *Server) runAcceptLoop() {
 			//s.logger.Info("accept loop stoped")
 			return
 		}
-		connHandle := handle.NewConnHandle(s, tcpConn, s.logger, s.config.AllowIps, s.handlers)
-		go connHandle.HandleConnection()
+		connHandle := handle.NewConnHandle(s, s.logger, s.config.AllowIps, s.handlers)
+		go connHandle.HandleConnection(tcpConn)
 	}
 }

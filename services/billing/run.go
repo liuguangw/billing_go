@@ -16,6 +16,7 @@ func (s *Server) Run() {
 	if err := s.initLogger(); err != nil {
 		log.Fatalln("init logger failed: " + err.Error())
 	}
+	//退出前,执行清理任务
 	defer s.clean()
 	//输出build信息
 	services.ShowVersionInfo(s.logger)

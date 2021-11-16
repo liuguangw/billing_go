@@ -8,7 +8,7 @@ import (
 func (s *Server) Stop() error {
 	packet := &common.BillingPacket{
 		MsgID:  [2]byte{0, 0},
-		OpData: []byte("close"),
+		OpData: []byte("stop"),
 	}
 	if _, err := s.sendPacketToServer(packet); err != nil {
 		return err
