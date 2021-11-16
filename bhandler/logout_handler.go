@@ -34,15 +34,17 @@ func (h *LogoutHandler) GetResponse(request *common.BillingPacket) *common.Billi
 	if clientInfo, userOnline := h.OnlineUsers[usernameStr]; userOnline {
 		delete(h.OnlineUsers, usernameStr)
 		macMd5 := clientInfo.MacMd5
-		macCounter := 0
-		if value, valueExists := h.MacCounters[macMd5]; valueExists {
-			macCounter = value
+		if macMd5 != "" {
+			macCounter := 0
+			if value, valueExists := h.MacCounters[macMd5]; valueExists {
+				macCounter = value
+			}
+			macCounter--
+			if macCounter < 0 {
+				macCounter = 0
+			}
+			h.MacCounters[macMd5] = macCounter
 		}
-		macCounter--
-		if macCounter < 0 {
-			macCounter = 0
-		}
-		h.MacCounters[macMd5] = macCounter
 	}
 	//
 	h.Logger.Info("user [" + string(username) + "] logout game")

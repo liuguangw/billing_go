@@ -46,7 +46,7 @@ func (h *CommandHandler) showUsers(response *common.BillingPacket) {
 		}
 	}
 	//
-	content += "\nonline users:"
+	content += "\n\nonline users:"
 	if len(h.OnlineUsers) == 0 {
 		content += " empty"
 	} else {
@@ -55,7 +55,7 @@ func (h *CommandHandler) showUsers(response *common.BillingPacket) {
 		}
 	}
 	//
-	content += "\nmac counters:"
+	content += "\n\nmac counters:"
 	if len(h.MacCounters) == 0 {
 		content += " empty"
 	} else {

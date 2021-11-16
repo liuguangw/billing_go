@@ -1,6 +1,7 @@
 package billing
 
 import (
+	"fmt"
 	"github.com/liuguangw/billing_go/common"
 )
 
@@ -10,5 +11,10 @@ func (s *Server) ShowUsers() error {
 		MsgID:  [2]byte{0, 0},
 		OpData: []byte("show_users"),
 	}
-	return s.sendPacketToServer(packet)
+	response, err := s.sendPacketToServer(packet)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(response.OpData))
+	return nil
 }
