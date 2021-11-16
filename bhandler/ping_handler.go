@@ -14,7 +14,7 @@ type PingHandler struct {
 
 // GetType 可以处理的消息类型
 func (*PingHandler) GetType() byte {
-	return 0xA1
+	return packetTypePing
 }
 
 // GetResponse 根据请求获得响应

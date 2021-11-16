@@ -17,7 +17,7 @@ type CostLogHandler struct {
 
 // GetType 可以处理的消息类型
 func (*CostLogHandler) GetType() byte {
-	return 0xC5
+	return packetTypeCostLog
 }
 
 // GetResponse 根据请求获得响应

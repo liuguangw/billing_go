@@ -17,7 +17,7 @@ type RegisterHandler struct {
 
 // GetType 可以处理的消息类型
 func (*RegisterHandler) GetType() byte {
-	return 0xF1
+	return packetTypeRegister
 }
 
 // GetResponse 根据请求获得响应

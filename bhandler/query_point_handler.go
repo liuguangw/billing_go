@@ -21,7 +21,7 @@ type QueryPointHandler struct {
 
 // GetType 可以处理的消息类型
 func (*QueryPointHandler) GetType() byte {
-	return 0xE2
+	return packetTypeQueryPoint
 }
 
 // GetResponse 根据请求获得响应

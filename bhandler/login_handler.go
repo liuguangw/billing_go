@@ -41,7 +41,7 @@ type LoginHandler struct {
 
 // GetType 可以处理的消息类型
 func (*LoginHandler) GetType() byte {
-	return 0xA2
+	return packetTypeLogin
 }
 
 // GetResponse 根据请求获得响应
@@ -94,7 +94,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 	if loginResult == loginCodeSuccess && h.MaxClientCount > 0 {
 		currentCount := len(h.OnlineUsers)
 		if currentCount >= h.MaxClientCount {
-			loginResult = 6
+			loginResult = loginCodeOtherError
 			loginResultTxt = "reach max_client_count limit"
 		}
 	}
@@ -105,7 +105,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 			macCounter = value
 		}
 		if macCounter >= h.PcMaxClientCount {
-			loginResult = 6
+			loginResult = loginCodeOtherError
 			loginResultTxt = "reach pc_max_client_count limit"
 		}
 	}

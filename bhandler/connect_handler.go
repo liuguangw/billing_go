@@ -8,7 +8,7 @@ type ConnectHandler struct {
 
 // GetType 可以处理的消息类型
 func (*ConnectHandler) GetType() byte {
-	return 0xA0
+	return packetTypeConnect
 }
 
 // GetResponse 根据请求获得响应

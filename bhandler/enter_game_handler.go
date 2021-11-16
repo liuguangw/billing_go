@@ -19,7 +19,7 @@ type EnterGameHandler struct {
 
 // GetType 可以处理的消息类型
 func (*EnterGameHandler) GetType() byte {
-	return 0xA3
+	return packetTypeEnterGame
 }
 
 // GetResponse 根据请求获得响应

@@ -17,7 +17,7 @@ type KeepHandler struct {
 
 // GetType 可以处理的消息类型
 func (*KeepHandler) GetType() byte {
-	return 0xA6
+	return packetTypeKeep
 }
 
 // GetResponse 根据请求获得响应

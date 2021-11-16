@@ -19,7 +19,7 @@ type ConvertPointHandler struct {
 
 // GetType 可以处理的消息类型
 func (*ConvertPointHandler) GetType() byte {
-	return 0xE1
+	return packetTypeConvertPoint
 }
 
 // GetResponse 根据请求获得响应
@@ -48,7 +48,8 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	//物品类型
 	mGoodsType := packetReader.ReadInt()
 	//物品数量
-	mGoodsNumber := packetReader.ReadUint16()
+	//mGoodsNumber := packetReader.ReadUint16()
+	packetReader.Skip(2)
 	//获取需要兑换的点数:4u
 	needPoint := packetReader.ReadInt()
 	needPoint /= h.ConvertNumber
@@ -94,7 +95,12 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, orderIDBytes...)
-	opData = append(opData, 0x00)
+	var convertResult byte
+	if realPoint <= 0 {
+		//点数不足,不做处理
+		convertResult = 1
+	}
+	opData = append(opData, convertResult)
 	//写入剩余点数
 	leftPoint := (userPoint - realPoint) * h.ConvertNumber
 	for i := 0; i < 4; i++ {
@@ -116,8 +122,8 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		}
 		opData = append(opData, byte(tmpValue&0xff))
 	}
-	//写入mGoodsNumber(购买的数量)
-	opData = append(opData, byte((mGoodsNumber&0xff00)>>8), byte(mGoodsNumber&0xff))
+	//写入mGoodsNumber(实际购买的数量)
+	opData = append(opData, byte((realPoint&0xff00)>>8), byte(realPoint&0xff))
 	response.OpData = opData
 	return response
 }

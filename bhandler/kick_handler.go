@@ -8,7 +8,7 @@ type KickHandler struct {
 
 // GetType 可以处理的消息类型
 func (*KickHandler) GetType() byte {
-	return 0xA9
+	return packetTypeKick
 }
 
 // GetResponse 根据请求获得响应

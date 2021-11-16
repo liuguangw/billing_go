@@ -19,7 +19,7 @@ type CommandHandler struct {
 
 // GetType 可以处理的消息类型
 func (*CommandHandler) GetType() byte {
-	return 0
+	return packetTypeCommand
 }
 
 // GetResponse 根据请求获得响应
@@ -27,7 +27,7 @@ func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.Bill
 	response := request.PrepareResponse()
 	response.OpData = []byte{0, 0}
 	if bytes.Compare(request.OpData, []byte("show_users")) == 0 {
-		h.showUsers()
+		h.showUsers(response)
 	} else {
 		//执行cancel后, Server.Run()中的ctx.Done()会达成,主协程会退出
 		h.Cancel()
@@ -35,35 +35,33 @@ func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.Bill
 	return response
 }
 
-//showUsers 日志打印用户列表状态
-func (h *CommandHandler) showUsers() {
+//showUsers 将用户列表状态写入response
+func (h *CommandHandler) showUsers(response *common.BillingPacket) {
+	content := "login users:"
 	if len(h.LoginUsers) == 0 {
-		h.Logger.Info("login users: empty")
+		content += " empty"
 	} else {
-		content := "login users:"
 		for username, clientInfo := range h.LoginUsers {
-			content += "\n" + username + ": " + clientInfo.String()
+			content += "\n\t" + username + ": " + clientInfo.String()
 		}
-		h.Logger.Info(content)
 	}
 	//
+	content += "\nonline users:"
 	if len(h.OnlineUsers) == 0 {
-		h.Logger.Info("online users: empty")
+		content += " empty"
 	} else {
-		content := "online users:"
 		for username, clientInfo := range h.OnlineUsers {
-			content += "\n" + username + ": " + clientInfo.String()
+			content += "\n\t" + username + ": " + clientInfo.String()
 		}
-		h.Logger.Info(content)
 	}
 	//
+	content += "\nmac counters:"
 	if len(h.MacCounters) == 0 {
-		h.Logger.Info("mac counters: empty")
+		content += " empty"
 	} else {
-		content := "mac counters:"
 		for macMd5, counterValue := range h.MacCounters {
-			content += "\n" + macMd5 + ": " + strconv.Itoa(counterValue)
+			content += "\n\t" + macMd5 + ": " + strconv.Itoa(counterValue)
 		}
-		h.Logger.Info(content)
 	}
+	response.OpData = []byte(content)
 }
