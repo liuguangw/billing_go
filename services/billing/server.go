@@ -11,16 +11,13 @@ import (
 
 // Server billing 服务
 type Server struct {
-	config      *common.ServerConfig //配置
-	running     bool                 //是否正在运行
-	database    *sql.DB              //数据库连接
-	listener    *net.TCPListener     //tcp listener
-	logFile     *os.File             //已打开的日志文件
-	logger      *zap.Logger          //日志对象
-	handlers    map[byte]common.PacketHandler
-	loginUsers  map[string]*common.ClientInfo //已登录,还未进入游戏的用户
-	onlineUsers map[string]*common.ClientInfo //已进入游戏的用户
-	macCounters map[string]int                //已进入游戏的用户的mac地址计数器
+	config   *common.ServerConfig          //配置
+	running  bool                          //是否正在运行
+	database *sql.DB                       //数据库连接
+	listener *net.TCPListener              //tcp listener
+	logFile  *os.File                      //已打开的日志文件
+	logger   *zap.Logger                   //日志对象
+	handlers map[byte]common.PacketHandler //数据包handlers
 }
 
 // NewServer 创建一个Server对象
