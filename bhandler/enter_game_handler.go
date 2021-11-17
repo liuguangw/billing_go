@@ -41,7 +41,7 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
 	//
 	h.Resource.Logger.Info("user [" + string(username) + "] " + string(charName) + " entered game")
-	var opData []byte
+	opData := make([]byte, 0, usernameLength+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x1)

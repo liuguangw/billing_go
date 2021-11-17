@@ -88,7 +88,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 			userPoint, realPoint, userPoint-realPoint))
 	}
 	// 数据包组合
-	var opData []byte
+	opData := make([]byte, 0, 1+usernameLength+21+1+4+2+4+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, orderIDBytes...)
@@ -98,7 +98,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		convertResult = 1
 	}
 	opData = append(opData, convertResult)
-	//写入剩余点数
+	//写入剩余点数:u4
 	leftPoint := (userPoint - realPoint) * h.ConvertNumber
 	for i := 0; i < 4; i++ {
 		tmpValue := leftPoint
@@ -108,9 +108,9 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		}
 		opData = append(opData, byte(tmpValue&0xff))
 	}
-	//mGoodsTypeNum
+	//mGoodsTypeNum:u2
 	opData = append(opData, byte((mGoodsTypeNum&0xff00)>>8), byte(mGoodsTypeNum&0xff))
-	// 写入mGoodsType
+	// 写入mGoodsType:u4
 	for i := 0; i < 4; i++ {
 		tmpValue := mGoodsType
 		movePos := (3 - i) * 8
@@ -119,7 +119,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		}
 		opData = append(opData, byte(tmpValue&0xff))
 	}
-	//写入mGoodsNumber(实际购买的数量)
+	//写入mGoodsNumber(实际购买的数量):u2
 	opData = append(opData, byte((realPoint&0xff00)>>8), byte(realPoint&0xff))
 	response.OpData = opData
 	return response

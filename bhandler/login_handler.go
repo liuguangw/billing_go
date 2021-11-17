@@ -111,7 +111,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		}
 	}
 	h.Resource.Logger.Info(fmt.Sprintf("user [%s] try to login from %s(Mac_md5=%s) : %s", username, loginIP, macMd5, loginResultTxt))
-	var opData []byte
+	opData := make([]byte, 0, usernameLength+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, loginResult)

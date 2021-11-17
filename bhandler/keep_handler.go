@@ -31,7 +31,7 @@ func (h *KeepHandler) GetResponse(request *common.BillingPacket) *common.Billing
 	clientInfo := &common.ClientInfo{}
 	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
 	h.Resource.Logger.Info(fmt.Sprintf("keep: user [%s] level %d", username, playerLevel))
-	var opData []byte
+	opData := make([]byte, 0, usernameLength+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x01)
