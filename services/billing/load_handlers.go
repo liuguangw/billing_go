@@ -15,71 +15,51 @@ func (s *Server) addHandler(handlers ...common.PacketHandler) {
 
 //loadHandlers 载入handlers
 func (s *Server) loadHandlers(cancel context.CancelFunc) {
+	resource := &common.HandlerResource{
+		Cancel:      cancel,
+		Db:          s.database,
+		Logger:      s.logger,
+		LoginUsers:  make(map[string]*common.ClientInfo),
+		OnlineUsers: make(map[string]*common.ClientInfo),
+		MacCounters: make(map[string]int),
+	}
 	s.handlers = make(map[byte]common.PacketHandler)
 	s.addHandler(
 		&bhandler.CommandHandler{
-			Cancel:      cancel,
-			Logger:      s.logger,
-			LoginUsers:  s.loginUsers,
-			OnlineUsers: s.onlineUsers,
-			MacCounters: s.macCounters,
+			Resource: resource,
 		},
 		&bhandler.ConnectHandler{},
 		&bhandler.PingHandler{
-			Logger: s.logger,
-		},
-		&bhandler.KeepHandler{
-			Logger:      s.logger,
-			LoginUsers:  s.loginUsers,
-			OnlineUsers: s.onlineUsers,
-			MacCounters: s.macCounters,
+			Resource: resource,
 		},
 		&bhandler.LoginHandler{
-			Db:               s.database,
-			Logger:           s.logger,
+			Resource:         resource,
 			AutoReg:          s.config.AutoReg,
 			MaxClientCount:   s.config.MaxClientCount,
 			PcMaxClientCount: s.config.PcMaxClientCount,
-			LoginUsers:       s.loginUsers,
-			OnlineUsers:      s.onlineUsers,
-			MacCounters:      s.macCounters,
-		},
-		&bhandler.RegisterHandler{
-			Db:     s.database,
-			Logger: s.logger,
 		},
 		&bhandler.EnterGameHandler{
-			Db:          s.database,
-			Logger:      s.logger,
-			LoginUsers:  s.loginUsers,
-			OnlineUsers: s.onlineUsers,
-			MacCounters: s.macCounters,
+			Resource: resource,
 		},
 		&bhandler.LogoutHandler{
-			Db:          s.database,
-			Logger:      s.logger,
-			LoginUsers:  s.loginUsers,
-			OnlineUsers: s.onlineUsers,
-			MacCounters: s.macCounters,
+			Resource: resource,
+		},
+		&bhandler.KeepHandler{
+			Resource: resource,
 		},
 		&bhandler.KickHandler{},
-		&bhandler.QueryPointHandler{
-			Db:          s.database,
-			Logger:      s.logger,
-			LoginUsers:  s.loginUsers,
-			OnlineUsers: s.onlineUsers,
-			MacCounters: s.macCounters,
+		&bhandler.CostLogHandler{
+			Resource: resource,
 		},
 		&bhandler.ConvertPointHandler{
-			Db:            s.database,
-			Logger:        s.logger,
+			Resource:      resource,
 			ConvertNumber: s.config.TransferNumber,
 		},
-		&bhandler.CostLogHandler{
-			Logger:      s.logger,
-			LoginUsers:  s.loginUsers,
-			OnlineUsers: s.onlineUsers,
-			MacCounters: s.macCounters,
+		&bhandler.QueryPointHandler{
+			Resource: resource,
+		},
+		&bhandler.RegisterHandler{
+			Resource: resource,
 		},
 	)
 }

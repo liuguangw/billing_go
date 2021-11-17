@@ -3,16 +3,12 @@ package bhandler
 import (
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/services"
-	"go.uber.org/zap"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // CostLogHandler 元宝消息记录
 type CostLogHandler struct {
-	Logger      *zap.Logger
-	LoginUsers  map[string]*common.ClientInfo //已登录,还未进入游戏的用户
-	OnlineUsers map[string]*common.ClientInfo //已进入游戏的用户
-	MacCounters map[string]int                //已进入游戏的用户的mac地址计数器
+	Resource *common.HandlerResource
 }
 
 // GetType 可以处理的消息类型
@@ -40,7 +36,7 @@ func (h *CostLogHandler) GetResponse(request *common.BillingPacket) *common.Bill
 	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
 	charName, err := gbkDecoder.Bytes(charNameGbkData)
 	if err != nil {
-		h.Logger.Error("decode char name failed: " + err.Error())
+		h.Resource.Logger.Error("decode char name failed: " + err.Error())
 		charName = []byte("?")
 	}
 	//skip level(u2)
@@ -53,7 +49,7 @@ func (h *CostLogHandler) GetResponse(request *common.BillingPacket) *common.Bill
 		IP:       loginIP,
 		CharName: string(charName),
 	}
-	markOnline(h.LoginUsers, h.OnlineUsers, h.MacCounters, string(username), clientInfo)
+	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
 	//
 	opData := make([]byte, 0, mSerialKeyLength+1)
 	opData = append(opData, mSerialKey...)

@@ -6,13 +6,11 @@ import (
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
-	"go.uber.org/zap"
 )
 
 // RegisterHandler 用户注册
 type RegisterHandler struct {
-	Db     *sql.DB
-	Logger *zap.Logger
+	Resource *common.HandlerResource
 }
 
 // GetType 可以处理的消息类型
@@ -58,11 +56,11 @@ func (h *RegisterHandler) GetResponse(request *common.BillingPacket) *common.Bil
 		regResult    byte = 1
 		regResultTxt      = "success"
 	)
-	if err := models.RegisterAccount(h.Db, account); err != nil {
+	if err := models.RegisterAccount(h.Resource.Db, account); err != nil {
 		regResult = 4
 		regResultTxt = err.Error()
 	}
-	h.Logger.Info(fmt.Sprintf("user [%s](%s) try to register from %s : %s", username, email, registerIP, regResultTxt))
+	h.Resource.Logger.Info(fmt.Sprintf("user [%s](%s) try to register from %s : %s", username, email, registerIP, regResultTxt))
 	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

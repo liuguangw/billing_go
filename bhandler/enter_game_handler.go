@@ -1,20 +1,14 @@
 package bhandler
 
 import (
-	"database/sql"
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/services"
-	"go.uber.org/zap"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // EnterGameHandler 进入游戏
 type EnterGameHandler struct {
-	Db          *sql.DB
-	Logger      *zap.Logger
-	LoginUsers  map[string]*common.ClientInfo //已登录,还未进入游戏的用户
-	OnlineUsers map[string]*common.ClientInfo //已进入游戏的用户
-	MacCounters map[string]int                //已进入游戏的用户的mac地址计数器
+	Resource *common.HandlerResource
 }
 
 // GetType 可以处理的消息类型
@@ -37,16 +31,16 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
 	charName, err := gbkDecoder.Bytes(charNameGbkData)
 	if err != nil {
-		h.Logger.Error("decode char name failed: " + err.Error())
+		h.Resource.Logger.Error("decode char name failed: " + err.Error())
 		charName = []byte("?")
 	}
 	//标记在线
 	clientInfo := &common.ClientInfo{
 		CharName: string(charName),
 	}
-	markOnline(h.LoginUsers, h.OnlineUsers, h.MacCounters, string(username), clientInfo)
+	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
 	//
-	h.Logger.Info("user [" + string(username) + "] " + string(charName) + " entered game")
+	h.Resource.Logger.Info("user [" + string(username) + "] " + string(charName) + " entered game")
 	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

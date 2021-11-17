@@ -2,19 +2,13 @@ package bhandler
 
 import (
 	"bytes"
-	"context"
 	"github.com/liuguangw/billing_go/common"
-	"go.uber.org/zap"
 	"strconv"
 )
 
 //CommandHandler 处理发送过来的命令
 type CommandHandler struct {
-	Cancel      context.CancelFunc
-	Logger      *zap.Logger
-	LoginUsers  map[string]*common.ClientInfo //已登录,还未进入游戏的用户
-	OnlineUsers map[string]*common.ClientInfo //已进入游戏的用户
-	MacCounters map[string]int                //已进入游戏的用户的mac地址计数器
+	Resource *common.HandlerResource
 }
 
 // GetType 可以处理的消息类型
@@ -34,7 +28,7 @@ func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.Bill
 		//./billing stop
 		//关闭billing服务
 		//执行cancel后, Server.Run()中的ctx.Done()会达成,主协程会退出
-		h.Cancel()
+		h.Resource.Cancel()
 	}
 	return response
 }
@@ -42,28 +36,28 @@ func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.Bill
 //showUsers 将用户列表状态写入response
 func (h *CommandHandler) showUsers(response *common.BillingPacket) {
 	content := "login users:"
-	if len(h.LoginUsers) == 0 {
+	if len(h.Resource.LoginUsers) == 0 {
 		content += " empty"
 	} else {
-		for username, clientInfo := range h.LoginUsers {
+		for username, clientInfo := range h.Resource.LoginUsers {
 			content += "\n\t" + username + ": " + clientInfo.String()
 		}
 	}
 	//
 	content += "\n\nonline users:"
-	if len(h.OnlineUsers) == 0 {
+	if len(h.Resource.OnlineUsers) == 0 {
 		content += " empty"
 	} else {
-		for username, clientInfo := range h.OnlineUsers {
+		for username, clientInfo := range h.Resource.OnlineUsers {
 			content += "\n\t" + username + ": " + clientInfo.String()
 		}
 	}
 	//
 	content += "\n\nmac counters:"
-	if len(h.MacCounters) == 0 {
+	if len(h.Resource.MacCounters) == 0 {
 		content += " empty"
 	} else {
-		for macMd5, counterValue := range h.MacCounters {
+		for macMd5, counterValue := range h.Resource.MacCounters {
 			content += "\n\t" + macMd5 + ": " + strconv.Itoa(counterValue)
 		}
 	}

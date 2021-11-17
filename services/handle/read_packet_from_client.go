@@ -51,6 +51,9 @@ func (h *ConnHandle) readPacketFromClient(tcpConn *net.TCPConn, packetChan chan<
 	}
 }
 
+//readPacket 循环读取数据包,并把数据包放入channel中,直到没有完整的数据可以读取,或者数据包格式错误
+//
+//返回本次读取到的所有数据包的长度之和
 func (h *ConnHandle) readPacket(clientData []byte, packetChan chan<- *common.BillingPacket) (int, error) {
 	packTotalSize := 0
 	for {
@@ -63,12 +66,13 @@ func (h *ConnHandle) readPacket(clientData []byte, packetChan chan<- *common.Bil
 		if readErr != nil {
 			return 0, readErr
 		}
+		// +数据包长度
 		packTotalSize += packet.FullLength()
-		packetChan <- packet
 		//标记
 		if packet.OpType == 0 {
 			h.isCommandClient = true
 		}
+		packetChan <- packet
 	}
 	return packTotalSize, nil
 }

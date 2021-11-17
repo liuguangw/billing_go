@@ -8,7 +8,7 @@ import (
 
 // PingHandler ping
 type PingHandler struct {
-	Logger             *zap.Logger
+	Resource           *common.HandlerResource
 	currentPlayerCount uint16
 }
 
@@ -28,7 +28,7 @@ func (h *PingHandler) GetResponse(request *common.BillingPacket) *common.Billing
 	//当玩家数发生变化时,记录信息
 	if h.currentPlayerCount != playerCount {
 		h.currentPlayerCount = playerCount
-		h.Logger.Info("server status: ",
+		h.Resource.Logger.Info("server status: ",
 			zap.Uint16("zoneID", zoneID),
 			zap.Uint16("worldID", worldID),
 			zap.Uint16("playerCount", playerCount))

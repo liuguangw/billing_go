@@ -1,12 +1,10 @@
 package bhandler
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
-	"go.uber.org/zap"
 )
 
 //登录结果定义
@@ -29,14 +27,10 @@ const (
 
 // LoginHandler 登录
 type LoginHandler struct {
-	Db               *sql.DB
-	Logger           *zap.Logger
-	AutoReg          bool
-	MaxClientCount   int                           //最多允许进入的用户数量(0表示无限制)
-	PcMaxClientCount int                           //每台电脑最多允许进入的用户数量(0表示无限制)
-	LoginUsers       map[string]*common.ClientInfo //已登录,还未进入游戏的用户
-	OnlineUsers      map[string]*common.ClientInfo //已进入游戏的用户
-	MacCounters      map[string]int                //已进入游戏的用户的mac地址计数器
+	Resource         *common.HandlerResource
+	AutoReg          bool //自动注册
+	MaxClientCount   int  //最多允许进入的用户数量(0表示无限制)
+	PcMaxClientCount int  //每台电脑最多允许进入的用户数量(0表示无限制)
 }
 
 // GetType 可以处理的消息类型
@@ -66,7 +60,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		loginResult    = loginCodeSuccess
 		loginResultTxt = "success"
 	)
-	if err := models.CheckLogin(h.Db, h.OnlineUsers, string(username), password); err != nil {
+	if err := models.CheckLogin(h.Resource.Db, h.Resource.OnlineUsers, string(username), password); err != nil {
 		loginResultTxt = err.Error()
 		if err == models.ErrorLoginUserNotFound {
 			//用户不存在
@@ -92,7 +86,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 	}
 	//判断连接的用户数是否达到限制
 	if loginResult == loginCodeSuccess && h.MaxClientCount > 0 {
-		currentCount := len(h.OnlineUsers)
+		currentCount := len(h.Resource.OnlineUsers)
 		if currentCount >= h.MaxClientCount {
 			loginResult = loginCodeOtherError
 			loginResultTxt = "reach max_client_count limit"
@@ -101,7 +95,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 	//判断此电脑的连接数是否达到限制
 	if loginResult == loginCodeSuccess && h.PcMaxClientCount > 0 {
 		macCounter := 0
-		if value, valueExists := h.MacCounters[macMd5]; valueExists {
+		if value, valueExists := h.Resource.MacCounters[macMd5]; valueExists {
 			macCounter = value
 		}
 		if macCounter >= h.PcMaxClientCount {
@@ -111,12 +105,12 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 	}
 	//将用户信息写入LoginUsers
 	if loginResult == loginCodeSuccess || loginResult == loginCodeShowRegister {
-		h.LoginUsers[string(username)] = &common.ClientInfo{
+		h.Resource.LoginUsers[string(username)] = &common.ClientInfo{
 			IP:     loginIP,
 			MacMd5: macMd5,
 		}
 	}
-	h.Logger.Info(fmt.Sprintf("user [%s] try to login from %s(Mac_md5=%s) : %s", username, loginIP, macMd5, loginResultTxt))
+	h.Resource.Logger.Info(fmt.Sprintf("user [%s] try to login from %s(Mac_md5=%s) : %s", username, loginIP, macMd5, loginResultTxt))
 	var opData []byte
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

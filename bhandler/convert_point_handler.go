@@ -1,19 +1,16 @@
 package bhandler
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
-	"go.uber.org/zap"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // ConvertPointHandler 处理点数兑换
 type ConvertPointHandler struct {
-	Db            *sql.DB
-	Logger        *zap.Logger
+	Resource      *common.HandlerResource
 	ConvertNumber int
 }
 
@@ -39,7 +36,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
 	charName, err := gbkDecoder.Bytes(charNameGbkData)
 	if err != nil {
-		h.Logger.Error("decode char name failed: " + err.Error())
+		h.Resource.Logger.Error("decode char name failed: " + err.Error())
 		charName = []byte("?")
 	}
 	//orderId 21u
@@ -63,9 +60,9 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	}
 	userPoint := 0
 	//获取用户当前点数总额
-	account, err := models.GetAccountByUsername(h.Db, string(username))
+	account, err := models.GetAccountByUsername(h.Resource.Db, string(username))
 	if err != nil {
-		h.Logger.Error("get account:" + string(username) + " info failed: " + err.Error())
+		h.Resource.Logger.Error("get account:" + string(username) + " info failed: " + err.Error())
 	}
 	if account != nil {
 		userPoint = account.Point
@@ -81,12 +78,12 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		realPoint = needPoint
 	}
 	// 执行兑换
-	err = models.ConvertUserPoint(h.Db, string(username), realPoint)
+	err = models.ConvertUserPoint(h.Resource.Db, string(username), realPoint)
 	if err != nil {
-		h.Logger.Error("convert point failed: " + err.Error())
+		h.Resource.Logger.Error("convert point failed: " + err.Error())
 		realPoint = 0
 	} else {
-		h.Logger.Info(fmt.Sprintf("user [%s] %s(ip: %s) point total [%d], need point [%d]: %d-%d=%d",
+		h.Resource.Logger.Info(fmt.Sprintf("user [%s] %s(ip: %s) point total [%d], need point [%d]: %d-%d=%d",
 			username, charName, loginIP, userPoint, needPoint,
 			userPoint, realPoint, userPoint-realPoint))
 	}
