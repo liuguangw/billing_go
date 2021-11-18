@@ -20,10 +20,6 @@ var (
 
 //CheckLogin 验证登录
 func CheckLogin(db *sql.DB, onlineUsers map[string]*common.ClientInfo, username, password string) error {
-	//判断用户是否在线
-	if _, userOnline := onlineUsers[username]; userOnline {
-		return ErrorLoginAccountOnline
-	}
 	account, err := GetAccountByUsername(db, username)
 	if err != nil {
 		return err
@@ -38,6 +34,10 @@ func CheckLogin(db *sql.DB, onlineUsers map[string]*common.ClientInfo, username,
 		if account.IDCard.String == "1" {
 			return ErrorLoginAccountLocked
 		}
+	}
+	//判断用户是否在线
+	if _, userOnline := onlineUsers[username]; userOnline {
+		return ErrorLoginAccountOnline
 	}
 	return nil
 }
