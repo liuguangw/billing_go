@@ -21,7 +21,6 @@ func defaultServerConfig() *common.ServerConfig {
 		DbPassword:       "root",
 		DbName:           "web",
 		AutoReg:          true,
-		TransferNumber:   1000,
 		MaxClientCount:   500,
 		PcMaxClientCount: 3,
 	}

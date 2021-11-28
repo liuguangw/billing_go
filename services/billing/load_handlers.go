@@ -52,8 +52,7 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 			Resource: resource,
 		},
 		&bhandler.ConvertPointHandler{
-			Resource:      resource,
-			ConvertNumber: s.config.TransferNumber,
+			Resource: resource,
 		},
 		&bhandler.QueryPointHandler{
 			Resource: resource,

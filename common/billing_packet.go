@@ -55,7 +55,7 @@ func ReadBillingPacket(binaryData []byte) (*BillingPacket, error) {
 	// OpData数据长度需要减去3: OpType(1字节), MsgID(2字节)
 	opDataLength := dataLength - 3
 	//计算包的总长度
-	packetFullLength := opDataLength + 9
+	packetFullLength := opDataLength + packetMinSize
 	//数据包不完整
 	if binaryDataLength < packetFullLength {
 		return nil, ErrorPacketNotFull
