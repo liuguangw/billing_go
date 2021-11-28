@@ -62,8 +62,8 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	//初始化兑换的结果
 	convertResult := convertSuccess
 	convertResultText := "success"
+	//查询数据库获取用户当前点数余额
 	userPoint := 0
-	//获取用户当前点数总额
 	account, err := models.GetAccountByUsername(h.Resource.Db, string(username))
 	if err != nil {
 		convertResult = convertFailed
@@ -73,7 +73,6 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	if account != nil {
 		userPoint = account.Point
 	}
-	//
 	//初始化剩余点数
 	leftPoint := userPoint
 	if leftPoint < 0 {
@@ -103,7 +102,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	//日志记录
 	h.Resource.Logger.Info(fmt.Sprintf("user [%s] %s(ip: %s) "+
 		"point total [%d], need point [%d],"+
-		" %d - %d = %d: %s",
+		" (%d - %d = %d): %s",
 		username, charName, loginIP,
 		userPoint, needPoint,
 		userPoint, realPoint, leftPoint,
