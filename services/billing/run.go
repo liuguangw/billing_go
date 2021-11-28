@@ -10,15 +10,16 @@ import (
 )
 
 // Run 运行billing
-func (s *Server) Run() {
+func (s *Server) Run(logFilePath string) {
 	//初始化日志系统
-	if err := s.initLogger(); err != nil {
+	if err := s.initLogger(logFilePath); err != nil {
 		log.Fatalln("init logger failed: " + err.Error())
 	}
 	//退出前,执行清理任务
 	defer s.clean()
 	//输出build信息
 	services.ShowVersionInfo(s.logger)
+	s.logger.Info("log file: " + s.logFile.Name())
 	//初始化tcp Listener
 	if err := s.initListener(); err != nil {
 		s.logger.Fatal("init listener failed: " + err.Error())

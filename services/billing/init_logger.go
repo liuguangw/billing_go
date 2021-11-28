@@ -10,16 +10,15 @@ import (
 )
 
 // initLogger 初始化日志系统
-func (s *Server) initLogger() error {
-	//当前程序文件的绝对路径
-	mainAppPath, err := filepath.Abs(os.Args[0])
-	if err != nil {
-		return err
+func (s *Server) initLogger(logFilePath string) error {
+	if logFilePath == "" {
+		//使用默认日志路径
+		defaultPath, err := defaultLogFilePath()
+		if err != nil {
+			return err
+		}
+		logFilePath = defaultPath
 	}
-	//程序目录
-	appDir := filepath.Dir(mainAppPath)
-	//打开日志文件
-	logFilePath := filepath.Join(appDir, "billing.log")
 	fileFlag := os.O_APPEND | os.O_CREATE | os.O_WRONLY
 	logFile, err := os.OpenFile(logFilePath, fileFlag, 0644)
 	if err != nil {
@@ -60,4 +59,18 @@ func (s *Server) initLogger() error {
 	s.logFile = logFile
 	s.logger = zap.New(core, zap.AddStacktrace(zapcore.WarnLevel))
 	return nil
+}
+
+//默认的日志文件路径
+func defaultLogFilePath() (string, error) {
+	//当前程序文件的绝对路径
+	mainAppPath, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		return "", err
+	}
+	//程序目录
+	appDir := filepath.Dir(mainAppPath)
+	//日志文件
+	logFilePath := filepath.Join(appDir, "billing.log")
+	return logFilePath, nil
 }
