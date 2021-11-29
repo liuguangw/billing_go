@@ -86,9 +86,6 @@ auto_reg: true
 #  - 1.1.1.1
 #  - 127.0.0.1
 #
-#兑换参数，有的版本可能要设置为1才能正常兑换,有的则是1000
-transfer_number: 1000
-#
 #登录的玩家总数量限制,如果为0则表示无上限
 max_client_count: 500
 #
@@ -110,7 +107,6 @@ pc_max_client_count: 3
   "allow_old_password": false,
   "auto_reg": true,
   "allow_ips": [],
-  "transfer_number": 1000,
   "max_client_count": 500,
   "pc_max_client_count": 3
 }
