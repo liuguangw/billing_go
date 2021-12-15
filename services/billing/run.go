@@ -36,8 +36,6 @@ func (s *Server) Run(logFilePath string) {
 	s.loadHandlers(cancel)
 	//循环accept tcp
 	go s.runAcceptLoop()
-	//忽略挂起信号
-	signal.Ignore(syscall.SIGHUP)
 	//关注signal
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
