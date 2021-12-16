@@ -38,10 +38,10 @@ jobs:
 
     - name: Build
       run: |
-        make all appVersion=1.0.0 projectName=billing
+        apt update
+        apt install -y --no-install-recommends upx
+        make all
         ls -al
-      env:
-        CGO_ENABLED: 0
 
     - name: Release
       uses: softprops/action-gh-release@v1

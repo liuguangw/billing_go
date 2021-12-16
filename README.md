@@ -157,17 +157,17 @@ Linux下启动billing方法(**前台模式**)
 #进入billing所在文件夹,比如/home
 cd /home
 #添加执行权限
-chmod a+x ./billing
+chmod +x ./billing
 #启动billing
 ./billing
 ```
 
-Linux下在后台运行billing的方法(**后台模式**,只支持Linux和类unix系统)
+Linux以守护进程后台运行billing的方法(**daemon模式**)
 ```bash
 #进入billing所在文件夹,比如/home
 cd /home
 #添加执行权限
-chmod a+x ./billing
+chmod +x ./billing
 #启动billing
 ./billing up -d
 ```
@@ -179,7 +179,11 @@ Windows下,直接双击`billing.exe`即可
 停止billing命令
 
 ```bash
+# 使用stop命令
 ./billing stop
+
+# 也可以使用kill命令
+kill -SIGTERM $(pgrep -f billing)
 ```
 
 如果是前台模式，可以使用Ctrl + C 组合键停止服务器

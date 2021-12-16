@@ -1,3 +1,4 @@
+export CGO_ENABLED=0
 appVersion ?= 1.3.3
 appBuildTime ?= $(shell TZ=Asia/Shanghai date "+%F %T GMT%:z")
 appGitCommitHash ?= $(shell git rev-parse HEAD)
@@ -6,10 +7,12 @@ appModuleName = github.com/liuguangw/billing_go/services
 buildLdFlags =-X $(appModuleName).appVersion=$(appVersion)
 buildLdFlags += -X '$(appModuleName).appBuildTime=$(appBuildTime)'
 buildLdFlags += -X $(appModuleName).gitCommitHash=$(appGitCommitHash)
-CGO_ENABLED ?= 0
 GO_BUILD=go build -ldflags "-w -s $(buildLdFlags)"
 EXTRA_FILES = config.yaml LICENSE README.md
 releasePath = ./release
+# 如果upx存在，是否使用upx
+useUpx ?= 1
+upxBin = $(shell which upx)
 
 define release_app
 	@echo build for $(2)
@@ -18,6 +21,10 @@ define release_app
 	@GOOS=linux GOARCH=$(1) $(GO_BUILD) -o $(releasePath)/$(projectName)
 	@echo "build $(projectName) (windows/$(2))"
 	@GOOS=windows GOARCH=$(1) $(GO_BUILD) -o $(releasePath)/$(projectName).exe
+	@if [ $(useUpx) -eq 1 ] && [ -n "$(upxBin)" ]; then \
+		$(upxBin) --best $(releasePath)/$(projectName); \
+		$(upxBin) --best $(releasePath)/$(projectName).exe; \
+	fi
 	@cp $(EXTRA_FILES) $(releasePath)/
 	@mv $(releasePath) ./$(projectName)-release-$(2)
 	@tar -zcf $(projectName)-release-$(2).tar.gz $(projectName)-release-$(2)
