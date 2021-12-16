@@ -23,6 +23,7 @@ func AppCommand() *cli.App {
 			UpCommand(),
 			StopCommand(),
 			ShowUsersCommand(),
+			VersionCommand(),
 		},
 	}
 }
