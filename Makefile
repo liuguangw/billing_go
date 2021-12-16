@@ -4,12 +4,24 @@ appBuildTime ?= $(shell TZ=Asia/Shanghai date "+%F %T GMT%:z")
 appGitCommitHash ?= $(shell git rev-parse HEAD)
 projectName ?= billing
 appModuleName = github.com/liuguangw/billing_go/services
+
+# 获取机器信息
+builderMachine ?= $(shell if [ -f /etc/os-release ]; then\
+    . /etc/os-release; echo $$PRETTY_NAME; \
+  elif [ -f /etc/issue.net ]; then\
+    cat /etc/issue.net; \
+  else \
+    echo unknown; \
+fi)
+
 buildLdFlags =-X $(appModuleName).appVersion=$(appVersion)
 buildLdFlags += -X '$(appModuleName).appBuildTime=$(appBuildTime)'
 buildLdFlags += -X $(appModuleName).gitCommitHash=$(appGitCommitHash)
+buildLdFlags += -X '$(appModuleName).builderMachine=$(builderMachine)'
 GO_BUILD=go build -ldflags "-w -s $(buildLdFlags)"
 EXTRA_FILES = config.yaml LICENSE README.md
 releasePath = ./release
+
 # 如果upx存在，是否使用upx
 useUpx ?= 1
 upxBin = $(shell which upx)
@@ -33,6 +45,7 @@ define release_app
 endef
 
 build:
+	@echo build from $(builderMachine)
 	@$(GO_BUILD) -o $(projectName)
 	@echo build $(projectName) ok
 
