@@ -6,13 +6,23 @@ projectName ?= billing
 appModuleName = github.com/liuguangw/billing_go/services
 
 # 获取机器信息
-builderMachine ?= $(shell if [ -f /etc/os-release ]; then\
-    . /etc/os-release; echo $$PRETTY_NAME; \
-  elif [ -f /etc/issue.net ]; then\
-    cat /etc/issue.net; \
-  else \
-    echo unknown; \
-fi)
+builderMachine ?= unknown
+
+osReleasePath = $(wildcard /etc/os-release)
+issuePath = $(wildcard /etc/issue.net)
+
+ifneq ($(osReleasePath),)
+builderMachine=$(shell . $(osReleasePath); echo $$PRETTY_NAME)
+else ifneq ($(issuePath),)
+builderMachine=$(file < $(issuePath))
+else 
+builderMachine = $(shell go env GOHOSTOS)
+endif
+
+# github
+ifneq (${GITHUB_ACTIONS},)
+builderMachine += (GitHub Actions)
+endif
 
 buildLdFlags =-X $(appModuleName).appVersion=$(appVersion)
 buildLdFlags += -X '$(appModuleName).appBuildTime=$(appBuildTime)'
@@ -45,7 +55,6 @@ define release_app
 endef
 
 build:
-	@echo build from $(builderMachine)
 	@$(GO_BUILD) -o $(projectName)
 	@echo build $(projectName) ok
 

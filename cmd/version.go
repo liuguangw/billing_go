@@ -32,5 +32,6 @@ func runVersionCommand(c *cli.Context) error {
 	logger := zap.New(core)
 	defer logger.Sync()
 	services.ShowVersionInfo(logger)
+	services.ShowBuilderInfo(logger)
 	return nil
 }
