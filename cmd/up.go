@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"errors"
 	"github.com/liuguangw/billing_go/services"
 	"github.com/liuguangw/billing_go/services/billing"
 	"github.com/urfave/cli/v2"
 	"os"
-	"runtime"
 )
 
 // UpCommand 运行server的命令
@@ -30,9 +28,6 @@ func runUpCommand(c *cli.Context) error {
 	logPath := c.String("log-path")
 	//后台模式
 	if isDaemon {
-		if runtime.GOOS == "windows" {
-			return errors.New("daemon mode is not supported on windows")
-		}
 		return services.RunBillingAtBackground(os.Args[0], logPath)
 	}
 	//初始化server

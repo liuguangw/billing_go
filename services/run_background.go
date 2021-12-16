@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 	"os/exec"
-	"syscall"
 )
 
 // RunBillingAtBackground 在后台运行程序
@@ -20,9 +19,8 @@ func RunBillingAtBackground(billingPath, logFilePath string) error {
 	}
 	cmd.Stdout = outFile
 	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setsid: true,
-	}
+	//设置守护进程模式
+	cmd.SysProcAttr = processAttr()
 	if err := cmd.Start(); err != nil {
 		return errors.New("start billing failed: " + err.Error())
 	}
