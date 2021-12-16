@@ -2,7 +2,7 @@ appVersion ?= 0.0.0
 appBuildTime ?= $(shell TZ=Asia/Shanghai date "+%F %T GMT%:z")
 appGitCommitHash ?= $(shell git rev-parse HEAD)
 projectName ?= go_app
-appModuleName = github.com/liuguangw/$(projectName)/services
+appModuleName = github.com/liuguangw/billing_go/services
 buildLdFlags =-X $(appModuleName).appVersion=$(appVersion)
 buildLdFlags += -X '$(appModuleName).appBuildTime=$(appBuildTime)'
 buildLdFlags += -X $(appModuleName).gitCommitHash=$(appGitCommitHash)
