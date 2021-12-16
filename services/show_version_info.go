@@ -19,5 +19,6 @@ func ShowVersionInfo(logger *zap.Logger) {
 		zap.String("git-hash", gitCommitHash[:7]),
 		zap.String("build-time", appBuildTime),
 		zap.String("go-version", runtime.Version()),
+		zap.String("arch", runtime.GOARCH),
 	)
 }
