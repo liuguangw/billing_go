@@ -2,6 +2,7 @@ package bhandler
 
 import (
 	"bytes"
+	"context"
 	"github.com/liuguangw/billing_go/common"
 	"strconv"
 )
@@ -9,6 +10,7 @@ import (
 //CommandHandler 处理发送过来的命令
 type CommandHandler struct {
 	Resource *common.HandlerResource
+	Cancel   context.CancelFunc //关闭服务器的回调函数
 }
 
 // GetType 可以处理的消息类型
@@ -28,7 +30,7 @@ func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.Bill
 		//./billing stop
 		//关闭billing服务
 		//执行cancel后, Server.Run()中的ctx.Done()会达成,主协程会退出
-		h.Resource.Cancel()
+		h.Cancel()
 	}
 	return response
 }

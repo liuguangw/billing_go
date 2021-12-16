@@ -35,6 +35,5 @@ func runUpCommand(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	server.Run(logPath)
-	return nil
+	return server.Run(logPath)
 }

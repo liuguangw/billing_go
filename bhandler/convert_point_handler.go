@@ -113,8 +113,8 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	opData = append(opData, username...)
 	opData = append(opData, orderIDBytes...)
 	opData = append(opData, convertResult)
-	//写入剩余点数:u4
-	leftPointU4 := leftPoint*1000 + 1
+	//写入剩余点数:u4(此值不会被用到,服务端以购买的数量来进行计算)
+	leftPointU4 := leftPoint * 1000
 	for i := 0; i < 4; i++ {
 		tmpValue := leftPointU4
 		movePos := (3 - i) * 8

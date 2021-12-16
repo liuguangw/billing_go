@@ -2,18 +2,18 @@ package billing
 
 import (
 	"context"
+	"errors"
 	"github.com/liuguangw/billing_go/services"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 // Run 运行billing
-func (s *Server) Run(logFilePath string) {
+func (s *Server) Run(logFilePath string) error {
 	//初始化日志系统
 	if err := s.initLogger(logFilePath); err != nil {
-		log.Fatalln("init logger failed: " + err.Error())
+		return errors.New("init logger failed: " + err.Error())
 	}
 	//退出前,执行清理任务
 	defer s.clean()
@@ -49,4 +49,5 @@ func (s *Server) Run(logFilePath string) {
 	//标记为停止
 	s.running = false
 	s.logger.Info("billing server stopped")
+	return nil
 }

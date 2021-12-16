@@ -16,7 +16,6 @@ func (s *Server) addHandler(handlers ...common.PacketHandler) {
 //loadHandlers 载入handlers
 func (s *Server) loadHandlers(cancel context.CancelFunc) {
 	resource := &common.HandlerResource{
-		Cancel:      cancel,
 		Db:          s.database,
 		Logger:      s.logger,
 		LoginUsers:  make(map[string]*common.ClientInfo),
@@ -27,6 +26,7 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 	s.addHandler(
 		&bhandler.CommandHandler{
 			Resource: resource,
+			Cancel:   cancel,
 		},
 		&bhandler.ConnectHandler{},
 		&bhandler.PingHandler{
