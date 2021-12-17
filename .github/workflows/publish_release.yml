@@ -40,7 +40,7 @@ jobs:
       run: |
         apt update
         apt install -y --no-install-recommends upx
-        make all
+        make all useUpx=1
         ls -al
 
     - name: Release
