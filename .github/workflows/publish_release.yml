@@ -38,8 +38,7 @@ jobs:
 
     - name: Build
       run: |
-        apt update
-        apt install -y --no-install-recommends upx
+        sudo apt install -y --no-install-recommends upx
         make all useUpx=1
         ls -al
 
