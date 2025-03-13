@@ -1,1 +1,3 @@
 *.go text eol=lf
+Makefile text eol=lf
+*.bat text eol=crlf
