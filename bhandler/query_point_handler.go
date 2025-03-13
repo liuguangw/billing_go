@@ -51,13 +51,14 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	//
 	var accountPoint = 0
 	if account != nil {
-		accountPoint = (account.Point + 1) * 1000
+		accountPoint = account.Point
 	}
-	h.Resource.Logger.Info(fmt.Sprintf("user [%s] %s query point (%d) at %s", username, charName, account.Point, loginIP))
+	h.Resource.Logger.Info(fmt.Sprintf("user [%s] %s query point (%d) at %s", username, charName, accountPoint, loginIP))
 	//Packets::BLRetAskPoint
 	opData := make([]byte, 0, usernameLength+5)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
+	accountPoint *= 1000
 	for i := 0; i < 4; i++ {
 		tmpValue := accountPoint
 		movePos := (3 - i) * 8

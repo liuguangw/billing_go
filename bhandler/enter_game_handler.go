@@ -42,7 +42,7 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 	//
 	h.Resource.Logger.Info("user [" + string(username) + "] " + string(charName) + " entered game")
 	//Packets::BLRetBillingStart
-	opData := make([]byte, 0, usernameLength+2+13)
+	opData := make([]byte, 0, usernameLength+2+14)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x1)
@@ -51,7 +51,8 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 	//mLeftTime: 4u
 	//mStorePoint: 4u
 	//mUserPoint: 4u
-	extraData := make([]byte, 13)
+	//mWhyFlag: 1u
+	extraData := make([]byte, 14)
 	opData = append(opData, extraData...)
 	response.OpData = opData
 	return response
