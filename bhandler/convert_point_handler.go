@@ -8,7 +8,7 @@ import (
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
-//兑换结果
+// 兑换结果
 const (
 	convertSuccess byte = 0 //兑换成功
 	convertFailed  byte = 1 //兑换失败
@@ -108,6 +108,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		userPoint, realPoint, leftPoint,
 		convertResultText))
 	// 数据包组合
+	//Packets::BLRetAskBuy
 	opData := make([]byte, 0, 1+usernameLength+21+1+4+2+4+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

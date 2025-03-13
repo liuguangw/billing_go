@@ -61,6 +61,7 @@ func (h *RegisterHandler) GetResponse(request *common.BillingPacket) *common.Bil
 		regResultTxt = err.Error()
 	}
 	h.Resource.Logger.Info(fmt.Sprintf("user [%s](%s) try to register from %s : %s", username, email, registerIP, regResultTxt))
+	//Packets::BLRetRegPassPort
 	opData := make([]byte, 0, usernameLength+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

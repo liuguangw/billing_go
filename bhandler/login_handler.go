@@ -7,7 +7,7 @@ import (
 	"github.com/liuguangw/billing_go/services"
 )
 
-//登录结果定义
+// 登录结果定义
 const (
 	// loginCodeSuccess 登录成功
 	loginCodeSuccess byte = 0x01
@@ -111,10 +111,33 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		}
 	}
 	h.Resource.Logger.Info(fmt.Sprintf("user [%s] try to login from %s(Mac_md5=%s) : %s", username, loginIP, macMd5, loginResultTxt))
+	//Packets::BLRetAccCheck
 	opData := make([]byte, 0, usernameLength+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, loginResult)
+	//额外数据
+	if loginResult == loginCodeSuccess {
+		//mCardPoint: 4U
+		//mCardDay: 2U
+		//mIsFatigue: 1U
+		//mAccTotalOnlineSecond: 4U
+		//mIsPhoneBind, 1u
+		//mIsIPBind, 1u
+		//mIsMiBaoBind, 1u
+		//mIsMacBind, 1u
+		//mIsRealNameBind, 1u
+		//mIsInputNameBind, 1u
+		//mIsPhoneMiBaoBind, 1u
+		//mIsPilferedAccount, 2u
+		extraData := make([]byte, 4+2+1+4+7+2)
+		//fake mAccTotalOnlineSecond: 100s
+		//extraData[10] = 100
+		for i := 11; i < 18; i++ {
+			extraData[i] = 'N'
+		}
+		opData = append(opData, extraData...)
+	}
 	response.OpData = opData
 	return response
 }

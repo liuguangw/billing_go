@@ -14,6 +14,7 @@ func (*KickHandler) GetType() byte {
 // GetResponse 根据请求获得响应
 func (h *KickHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
+	//Packets::BLRetKickALL
 	response.OpData = []byte{0x01}
 	return response
 }

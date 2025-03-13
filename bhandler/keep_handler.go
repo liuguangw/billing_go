@@ -31,10 +31,19 @@ func (h *KeepHandler) GetResponse(request *common.BillingPacket) *common.Billing
 	clientInfo := &common.ClientInfo{}
 	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
 	h.Resource.Logger.Info(fmt.Sprintf("keep: user [%s] level %d", username, playerLevel))
-	opData := make([]byte, 0, usernameLength+2)
+	//Packets::BLRetBillingKeep
+	opData := make([]byte, 0, usernameLength+2+12)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x01)
+	//额外数据
+	//mLeftTime: 4U
+	//mStorePoint: 4U
+	//mUserPoint: 4U
+	extraData := make([]byte, 12)
+	//fake mLeftTime: 100
+	extraData[3] = 100
+	opData = append(opData, extraData...)
 	response.OpData = opData
 	return response
 }

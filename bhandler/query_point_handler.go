@@ -54,6 +54,7 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 		accountPoint = (account.Point + 1) * 1000
 	}
 	h.Resource.Logger.Info(fmt.Sprintf("user [%s] %s query point (%d) at %s", username, charName, account.Point, loginIP))
+	//Packets::BLRetAskPoint
 	opData := make([]byte, 0, usernameLength+5)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

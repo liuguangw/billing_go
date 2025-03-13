@@ -42,6 +42,7 @@ func (h *LogoutHandler) GetResponse(request *common.BillingPacket) *common.Billi
 	}
 	//
 	h.Resource.Logger.Info("user [" + string(username) + "] logout game")
+	//Packets::BLRetBillingEnd
 	opData := make([]byte, 0, usernameLength+2)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)

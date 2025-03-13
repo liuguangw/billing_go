@@ -14,6 +14,7 @@ func (*ConnectHandler) GetType() byte {
 // GetResponse 根据请求获得响应
 func (h *ConnectHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
+	//Packets::BLRetConnect
 	response.OpData = []byte{0x20, 0x00}
 	return response
 }

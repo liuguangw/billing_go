@@ -41,10 +41,18 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
 	//
 	h.Resource.Logger.Info("user [" + string(username) + "] " + string(charName) + " entered game")
-	opData := make([]byte, 0, usernameLength+2)
+	//Packets::BLRetBillingStart
+	opData := make([]byte, 0, usernameLength+2+13)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
 	opData = append(opData, 0x1)
+	//额外数据
+	//mFeeType: 1u
+	//mLeftTime: 4u
+	//mStorePoint: 4u
+	//mUserPoint: 4u
+	extraData := make([]byte, 13)
+	opData = append(opData, extraData...)
 	response.OpData = opData
 	return response
 }
