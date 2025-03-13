@@ -13,15 +13,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.17
+          go-version: 1.23
 
       - name: Set up Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
