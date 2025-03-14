@@ -1,12 +1,36 @@
 # billing_go
 
-这是一个用Go语言编写的billing验证服务器。
+这是一个用 Go 语言编写的 billing 验证服务器。
 
 ## 运行环境要求
 
 支持以下任意一种运行环境
-- Linux (Linux 2.6.23 或者以上版本)
-- Windows 7, Server 2008R2 或者更高版本
+- Linux (Linux 内核版本 2.6.32 或者以上版本)
+
+- Windows 10, Server 2016 或者更高版本
+
+  > 参考 Go 语言程序的系统需求，https://go.dev/wiki/MinimumRequirements
+
+## bug 反馈
+
+如果使用此程序出现问题，可以提交 Issue 说明你所遇到的问题，并附上相关日志文件。
+
+**billing** 的日志在 billing 程序所在的目录，文件名为 billing.log，首次运行时会自动创建此文件。
+
+此外还需要 **Login** 服务器的日志，因为只有 Login 服务器会连接 billing 服务器。
+
+可以修改一下运行脚本 `run.sh`，把 Login 服务器的日志写入某个文件，这样就可以在问题复现时从日志中查询到原因。
+
+```sh
+# 记录Login服务器日志的方法
+
+# 原命令
+./Login >/dev/null 2>&1 &	
+
+# 修改/dev/null 为 /home/login.log
+# 修改后,日志文件会保存到/home/login.log
+./Login >/home/login.log 2>&1 &	
+```
 
 ## 获取程序包
 
@@ -14,15 +38,15 @@
 
   ### 1.使用我编译好的版本
 
-  [点击这里](https://github.com/liuguangw/billing_go/releases)查看我编译好的各版本
+  [点击这里](https://github.com/liuguangw/billing_go/releases)查看我编译好的各版本, 可能没有最新的编译版本
 
   ### 2.手工编译
   如果你想亲自进行编译，需要确保你的操作系统满足以下条件
 
  - 设备已连接网络
  - 已安装Git
- - 已安装make
- - 已安装Go 1.17或者更高版本
+ - 已安装make(仅linux需要)
+ - 已安装Go 1.23 或者更高版本
 
   linux 使用 make 进行编译
    ```bash
