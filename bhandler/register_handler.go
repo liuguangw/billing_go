@@ -57,7 +57,7 @@ func (h *RegisterHandler) GetResponse(request *common.BillingPacket) *common.Bil
 		regResultTxt      = "success"
 	)
 	if err := models.RegisterAccount(h.Resource.Db, account); err != nil {
-		regResult = 4
+		regResult = 6
 		regResultTxt = err.Error()
 	}
 	h.Resource.Logger.Info(fmt.Sprintf("user [%s](%s) try to register from %s : %s", username, email, registerIP, regResultTxt))

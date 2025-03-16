@@ -7,6 +7,9 @@ import (
 
 // RegisterAccount 注册账号
 func RegisterAccount(db *sql.DB, account *Account) error {
+	if len(account.Name) > 50 {
+		return errors.New("account name length exceeds 50 characters")
+	}
 	tmpAccount, err := GetAccountByUsername(db, account.Name)
 	if err != nil {
 		//数据库异常
