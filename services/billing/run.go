@@ -3,7 +3,6 @@ package billing
 import (
 	"context"
 	"errors"
-	"github.com/liuguangw/billing_go/services"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,8 +16,8 @@ func (s *Server) Run(logFilePath string) error {
 	}
 	//退出前,执行清理任务
 	defer s.clean()
-	//输出build信息
-	services.ShowVersionInfo(s.logger)
+	//log
+	s.logger.Info("(###) billing service starting ...")
 	s.logger.Info("log file: " + s.logFile.Name())
 	//初始化tcp Listener
 	if err := s.initListener(); err != nil {
