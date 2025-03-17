@@ -5,9 +5,10 @@ import (
 	"errors"
 	"github.com/liuguangw/billing_go/common"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // defaultServerConfig 默认配置
@@ -36,46 +37,54 @@ func LoadServerConfig() (*common.ServerConfig, error) {
 	}
 	//程序目录
 	appDir := filepath.Dir(mainAppPath)
+	//可选配置文件路径
+	pathList := []string{
+		"./config.yaml",
+		"./config.json",
+		filepath.Join(appDir, "config.yaml"),
+		filepath.Join(appDir, "config.json"),
+	}
 	var (
-		configFile    *os.File
-		filenames     = []string{"config.yaml", "config.json"}
-		filenameIndex = -1
+		configFile     *os.File
+		configFilePath string
 	)
-	for index, filename := range filenames {
-		configFilePath := filepath.Join(appDir, filename)
-		configFile, err = os.OpenFile(configFilePath, os.O_RDONLY, 0)
+	for _, fPath := range pathList {
+		configFile, err = os.Open(fPath)
 		if err != nil {
 			//文件不存在
 			if os.IsNotExist(err) {
 				continue
 			}
 			//其它错误
-			return nil, errors.New("open config file " + configFilePath + " error: " + err.Error())
+			return nil, errors.New("open config file " + fPath + " error: " + err.Error())
+		} else {
+			//打开成功
+			configFilePath = fPath
+			break
 		}
-		//打开成功,标记index
-		filenameIndex = index
-		break
 	}
-	if filenameIndex < 0 {
+	if configFile == nil {
 		return nil, errors.New("config file not found")
 	}
 	defer configFile.Close()
 	// 读取配置文件
-	fileData, err := ioutil.ReadAll(configFile)
+	fileData, err := io.ReadAll(configFile)
 	if err != nil {
-		return nil, errors.New("read config file failed: " + err.Error())
+		return nil, errors.New("read config file " + configFilePath + " failed: " + err.Error())
 	}
 	//初始化配置
 	serverConfig := defaultServerConfig()
-	if filenameIndex == 0 {
-		if err := loadServerConfigFromYaml(fileData, serverConfig); err != nil {
-			return nil, err
-		}
-		return serverConfig, nil
+	//解析错误
+	var parseError error
+	if strings.HasSuffix(configFilePath, ".yaml") {
+		parseError = loadServerConfigFromYaml(fileData, serverConfig)
+	} else if strings.HasSuffix(configFilePath, ".json") {
+		parseError = loadServerConfigFromJSON(fileData, serverConfig)
+	} else {
+		return nil, errors.New("config file suffix error")
 	}
-	//json格式
-	if err := loadServerConfigFromJSON(fileData, serverConfig); err != nil {
-		return nil, err
+	if parseError != nil {
+		return nil, errors.New("parse config file " + configFilePath + " failed: " + parseError.Error())
 	}
 	return serverConfig, nil
 }
