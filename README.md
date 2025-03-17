@@ -120,6 +120,10 @@ auto_reg: true
 #  - 1.1.1.1
 #  - 127.0.0.1
 #
+#点数修正, 在查询点数时,显示的值多1点或者少1点时才需要配置此值, 正常情况设置为0
+#如果显示的点数少1点则配置为1(这是临时方案,一般是lua脚本有问题,lua脚本不应该把返回的数值减一,建议修改客户端查询点数的脚本)
+#如果显示的点数多一点则配置为-1(一般不可能发生)
+point_fix: 0
 #登录的玩家总数量限制,如果为0则表示无上限
 max_client_count: 500
 #
@@ -141,6 +145,7 @@ pc_max_client_count: 3
   "allow_old_password": false,
   "auto_reg": true,
   "allow_ips": [],
+  "point_fix": 0,
   "max_client_count": 500,
   "pc_max_client_count": 3
 }
@@ -157,10 +162,6 @@ pc_max_client_count: 3
 
 ```ini
 #........
-[World]
-IP=127.0.0.1
-Port=777
-
 [Billing]
 Number=1
 #billing服务器的ip

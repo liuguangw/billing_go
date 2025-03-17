@@ -13,7 +13,7 @@ func (s *Server) addHandler(handlers ...common.PacketHandler) {
 	}
 }
 
-//loadHandlers 载入handlers
+// loadHandlers 载入handlers
 func (s *Server) loadHandlers(cancel context.CancelFunc) {
 	resource := &common.HandlerResource{
 		Db:          s.database,
@@ -56,6 +56,7 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 		},
 		&bhandler.QueryPointHandler{
 			Resource: resource,
+			PointFix: s.config.PointFix,
 		},
 		&bhandler.RegisterHandler{
 			Resource: resource,

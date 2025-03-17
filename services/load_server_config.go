@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-//defaultServerConfig 默认配置
+// defaultServerConfig 默认配置
 func defaultServerConfig() *common.ServerConfig {
 	return &common.ServerConfig{
 		IP:               "127.0.0.1",
@@ -21,6 +21,7 @@ func defaultServerConfig() *common.ServerConfig {
 		DbPassword:       "root",
 		DbName:           "web",
 		AutoReg:          true,
+		PointFix:         0,
 		MaxClientCount:   500,
 		PcMaxClientCount: 3,
 	}

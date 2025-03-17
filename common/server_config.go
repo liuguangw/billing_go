@@ -12,6 +12,7 @@ type ServerConfig struct {
 	AllowOldPassword bool     `json:"allow_old_password" yaml:"allow_old_password"`   //是否启用oldPassword(除非报这个错误,否则不建议开启)
 	AutoReg          bool     `json:"auto_reg" yaml:"auto_reg"`                       //是否开启自动注册
 	AllowIps         []string `json:"allow_ips" yaml:"allow_ips"`                     //允许连接billing的服务端IP,为空则表示不限制
+	PointFix         int      `json:"point_fix" yaml:"point_fix"`                     //用于查询点数时少1或者多1点的修正(修正值一般为0或者1)
 	MaxClientCount   int      `json:"max_client_count" yaml:"max_client_count"`       //最多允许进入的用户数量(0表示无限制)
 	PcMaxClientCount int      `json:"pc_max_client_count" yaml:"pc_max_client_count"` //每台电脑最多允许进入的用户数量(0表示无限制)
 }

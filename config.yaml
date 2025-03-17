@@ -10,5 +10,6 @@ auto_reg: true
 #allow_ips:
 #  - 127.0.0.1
 #  - 192.168.10.3
+point_fix: 0
 max_client_count: 500
 pc_max_client_count: 3

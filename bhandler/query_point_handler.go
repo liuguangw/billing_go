@@ -11,6 +11,7 @@ import (
 // QueryPointHandler 查询点数
 type QueryPointHandler struct {
 	Resource *common.HandlerResource
+	PointFix int //用于点数修正
 }
 
 // GetType 可以处理的消息类型
@@ -58,7 +59,7 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	opData := make([]byte, 0, usernameLength+5)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
-	accountPoint *= 1000
+	accountPoint = (accountPoint + h.PointFix) * 1000
 	for i := 0; i < 4; i++ {
 		tmpValue := accountPoint
 		movePos := (3 - i) * 8
