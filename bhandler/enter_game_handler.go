@@ -9,6 +9,7 @@ import (
 // EnterGameHandler 进入游戏
 type EnterGameHandler struct {
 	Resource *common.HandlerResource
+	BillType int //billing类型
 }
 
 // GetType 可以处理的消息类型
@@ -52,7 +53,11 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 	//mStorePoint: 4u
 	//mUserPoint: 4u
 	//mWhyFlag: 1u
-	extraData := make([]byte, 14)
+	padLen := 14
+	if h.BillType == common.BillTypeHuaiJiu {
+		padLen = 16
+	}
+	extraData := make([]byte, padLen)
 	opData = append(opData, extraData...)
 	response.OpData = opData
 	return response

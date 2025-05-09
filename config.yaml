@@ -13,3 +13,5 @@ auto_reg: true
 point_fix: 0
 max_client_count: 500
 pc_max_client_count: 3
+# billing类型 0经典 1怀旧
+bill_type: 0

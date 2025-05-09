@@ -4,7 +4,7 @@ ifeq ($(hostOsType),windows)
 $(error build $(projectName) is not support on $(hostOsType))
 endif
 export CGO_ENABLED=0
-appVersion ?= 1.3.4
+appVersion ?= 1.3.5
 appArchList := x32 x64
 appBuildTime ?= $(shell TZ=Asia/Shanghai date "+%F %T GMT%:z")
 appGitCommitHash ?= $(shell git rev-parse HEAD)

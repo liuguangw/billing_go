@@ -2,6 +2,7 @@ package bhandler
 
 import (
 	"fmt"
+
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
@@ -20,6 +21,7 @@ const (
 // ConvertPointHandler 处理点数兑换
 type ConvertPointHandler struct {
 	Resource *common.HandlerResource
+	BillType int //billing类型
 }
 
 // GetType 可以处理的消息类型
@@ -53,10 +55,15 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	//物品类型: 999表示买元宝
 	mGoodsType := packetReader.ReadInt()
 	//fmt.Println(mGoodsType)
-	//物品数量(输入的点数)
-	mGoodsNumber := packetReader.ReadUint16()
 	//需要兑换的点数
-	needPoint := int(mGoodsNumber)
+	var needPoint int
+	if h.BillType == common.BillTypeHuaiJiu {
+		needPoint = packetReader.ReadInt()
+	} else {
+		//物品数量(输入的点数)
+		mGoodsNumber := packetReader.ReadUint16()
+		needPoint = int(mGoodsNumber)
+	}
 	//初始化兑换的结果
 	convertResult := convertSuccess
 	convertResultText := "success"
@@ -117,8 +124,11 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	opData = append(opData, convertResult)
 	if convertResult <= convertAlreadyGet {
 		//写入剩余点数:u4(此值不会被用到,服务端以购买的数量来进行计算)
-		leftPointU4 := leftPoint * 1000
-		for i := 0; i < 4; i++ {
+		leftPointU4 := leftPoint
+		if h.BillType == common.BillTypeCommon {
+			leftPointU4 *= 1000
+		}
+		for i := range 4 {
 			tmpValue := leftPointU4
 			movePos := (3 - i) * 8
 			if movePos > 0 {
@@ -129,7 +139,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		//mGoodsTypeNum:u2
 		opData = append(opData, byte((mGoodsTypeNum&0xff00)>>8), byte(mGoodsTypeNum&0xff))
 		// 写入mGoodsType:u4
-		for i := 0; i < 4; i++ {
+		for i := range 4 {
 			tmpValue := mGoodsType
 			movePos := (3 - i) * 8
 			if movePos > 0 {
@@ -137,8 +147,20 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 			}
 			opData = append(opData, byte(tmpValue&0xff))
 		}
-		//消耗的点数:u2
-		opData = append(opData, byte((needPoint&0xff00)>>8), byte(needPoint&0xff))
+		if h.BillType == common.BillTypeHuaiJiu {
+			//消耗的点数:u4
+			for i := range 4 {
+				tmpValue := needPoint
+				movePos := (3 - i) * 8
+				if movePos > 0 {
+					tmpValue >>= movePos
+				}
+				opData = append(opData, byte(tmpValue&0xff))
+			}
+		} else {
+			//消耗的点数:u2
+			opData = append(opData, byte((needPoint&0xff00)>>8), byte(needPoint&0xff))
+		}
 	}
 	response.OpData = opData
 	return response

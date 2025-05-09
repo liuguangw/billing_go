@@ -42,6 +42,7 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 		},
 		&bhandler.EnterGameHandler{
 			Resource: resource,
+			BillType: s.config.BillType,
 		},
 		&bhandler.LogoutHandler{
 			Resource: resource,
@@ -55,10 +56,12 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 		},
 		&bhandler.ConvertPointHandler{
 			Resource: resource,
+			BillType: s.config.BillType,
 		},
 		&bhandler.QueryPointHandler{
 			Resource: resource,
 			PointFix: s.config.PointFix,
+			BillType: s.config.BillType,
 		},
 		&bhandler.RegisterHandler{
 			Resource: resource,

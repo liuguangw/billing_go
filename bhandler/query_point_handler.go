@@ -2,6 +2,7 @@ package bhandler
 
 import (
 	"fmt"
+
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
@@ -12,6 +13,7 @@ import (
 type QueryPointHandler struct {
 	Resource *common.HandlerResource
 	PointFix int //用于点数修正
+	BillType int //billing类型
 }
 
 // GetType 可以处理的消息类型
@@ -59,8 +61,11 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	opData := make([]byte, 0, usernameLength+5)
 	opData = append(opData, usernameLength)
 	opData = append(opData, username...)
-	accountPoint = (accountPoint + h.PointFix) * 1000
-	for i := 0; i < 4; i++ {
+	accountPoint = (accountPoint + h.PointFix)
+	if h.BillType == common.BillTypeCommon {
+		accountPoint *= 1000
+	}
+	for i := range 4 {
 		tmpValue := accountPoint
 		movePos := (3 - i) * 8
 		if movePos > 0 {
