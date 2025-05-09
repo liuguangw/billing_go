@@ -22,7 +22,7 @@ func UpCommand() *cli.Command {
 	}
 }
 
-//runUpCommand 运行billing服务
+// runUpCommand 运行billing服务
 func runUpCommand(c *cli.Context) error {
 	isDaemon := c.IsSet("daemon")
 	logPath := c.String("log-path")

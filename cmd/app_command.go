@@ -11,7 +11,7 @@ var runFlags = []cli.Flag{
 	},
 }
 
-//AppCommand 项目命令根节点
+// AppCommand 项目命令根节点
 func AppCommand() *cli.App {
 	return &cli.App{
 		Name:                 "billing",

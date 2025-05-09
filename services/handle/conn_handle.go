@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 )
 
-//ConnHandle tcp连接处理工具
+// ConnHandle tcp连接处理工具
 type ConnHandle struct {
 	server          ServerInterface
 	logger          *zap.Logger
@@ -14,7 +14,7 @@ type ConnHandle struct {
 	isCommandClient bool //是否为命令连接(由stop、show_users发起的连接)
 }
 
-//NewConnHandle 初始化tcp连接处理工具
+// NewConnHandle 初始化tcp连接处理工具
 func NewConnHandle(server ServerInterface, logger *zap.Logger,
 	allowIps []string, handlers map[byte]common.PacketHandler) *ConnHandle {
 	return &ConnHandle{

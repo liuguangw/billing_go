@@ -14,10 +14,10 @@ var (
 	ErrorPacketInvalid = errors.New("invalid data packet")
 )
 
-//packetMinSize 数据包最短长度
+// packetMinSize 数据包最短长度
 const packetMinSize = 9
 
-//BillingPacket 数据包结构
+// BillingPacket 数据包结构
 //
 // u2   头部标识 0xAA 0x55
 //
@@ -36,7 +36,7 @@ type BillingPacket struct {
 	OpData []byte  //负载数据
 }
 
-//ReadBillingPacket 读取billing包
+// ReadBillingPacket 读取billing包
 func ReadBillingPacket(binaryData []byte) (*BillingPacket, error) {
 	binaryDataLength := len(binaryData)
 	//数据包长度不足
@@ -84,7 +84,7 @@ func (packet *BillingPacket) PrepareResponse() *BillingPacket {
 	}
 }
 
-//PackData 数据打包为byte数组
+// PackData 数据打包为byte数组
 func (packet *BillingPacket) PackData() []byte {
 	//分配空间
 	OpDataLength := len(packet.OpData)

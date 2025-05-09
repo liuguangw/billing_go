@@ -31,7 +31,7 @@ func (s *Server) sendPacketToServer(packet *common.BillingPacket) (*common.Billi
 	return readPacket(tcpConn)
 }
 
-//读取一个响应包
+// 读取一个响应包
 func readPacket(tcpConn *net.TCPConn) (*common.BillingPacket, error) {
 	var (
 		clientData = make([]byte, 0, 1024) //所有数据

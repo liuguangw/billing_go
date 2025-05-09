@@ -15,7 +15,7 @@ func StopCommand() *cli.Command {
 	}
 }
 
-//runStopCommand 停止billing服务
+// runStopCommand 停止billing服务
 func runStopCommand(c *cli.Context) error {
 	//初始化server
 	server, err := billing.NewServer()

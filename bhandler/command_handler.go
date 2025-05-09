@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-//CommandHandler 处理发送过来的命令
+// CommandHandler 处理发送过来的命令
 type CommandHandler struct {
 	Resource *common.HandlerResource
 	Cancel   context.CancelFunc //关闭服务器的回调函数
@@ -35,7 +35,7 @@ func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.Bill
 	return response
 }
 
-//showUsers 将用户列表状态写入response
+// showUsers 将用户列表状态写入response
 func (h *CommandHandler) showUsers(response *common.BillingPacket) {
 	content := "login users:"
 	if len(h.Resource.LoginUsers) == 0 {

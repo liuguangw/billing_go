@@ -17,7 +17,7 @@ func VersionCommand() *cli.Command {
 	}
 }
 
-//runVersionCommand 打印版本信息
+// runVersionCommand 打印版本信息
 func runVersionCommand(c *cli.Context) error {
 	//日志格式设置
 	cfg := zap.NewDevelopmentEncoderConfig()

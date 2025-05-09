@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-//HandleConnection 处理TCP连接
+// HandleConnection 处理TCP连接
 func (h *ConnHandle) HandleConnection(tcpConn *net.TCPConn) {
 	defer tcpConn.Close()
 	clientAddr := tcpConn.RemoteAddr()

@@ -2,7 +2,7 @@ package bhandler
 
 import "github.com/liuguangw/billing_go/common"
 
-//markOnline 标记用户为在线状态
+// markOnline 标记用户为在线状态
 func markOnline(loginUsers, onlineUsers map[string]*common.ClientInfo, macCounters map[string]int,
 	username string, clientInfo *common.ClientInfo) {
 	//已经标记为登录了

@@ -15,7 +15,7 @@ func ShowUsersCommand() *cli.Command {
 	}
 }
 
-//runShowUsersCommand 打印用户列表状态
+// runShowUsersCommand 打印用户列表状态
 func runShowUsersCommand(c *cli.Context) error {
 	//初始化server
 	server, err := billing.NewServer()

@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-//readPacketFromClient 读取billing包,并把它放到packetChan中
+// readPacketFromClient 读取billing包,并把它放到packetChan中
 func (h *ConnHandle) readPacketFromClient(tcpConn *net.TCPConn, packetChan chan<- *common.BillingPacket) {
 	defer close(packetChan)
 	var (
@@ -51,9 +51,9 @@ func (h *ConnHandle) readPacketFromClient(tcpConn *net.TCPConn, packetChan chan<
 	}
 }
 
-//readPacket 循环读取数据包,并把数据包放入channel中,直到没有完整的数据可以读取,或者数据包格式错误
+// readPacket 循环读取数据包,并把数据包放入channel中,直到没有完整的数据可以读取,或者数据包格式错误
 //
-//返回本次读取到的所有数据包的长度之和
+// 返回本次读取到的所有数据包的长度之和
 func (h *ConnHandle) readPacket(clientData []byte, packetChan chan<- *common.BillingPacket) (int, error) {
 	packTotalSize := 0
 	for {

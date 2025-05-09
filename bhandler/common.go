@@ -1,6 +1,6 @@
 package bhandler
 
-//消息类型定义
+// 消息类型定义
 const (
 	packetTypeCommand      byte = 0
 	packetTypeConnect      byte = 0xA0

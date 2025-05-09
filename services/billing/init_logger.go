@@ -61,7 +61,7 @@ func (s *Server) initLogger(logFilePath string) error {
 	return nil
 }
 
-//默认的日志文件路径
+// 默认的日志文件路径
 func defaultLogFilePath() (string, error) {
 	//当前程序文件的绝对路径
 	mainAppPath, err := filepath.Abs(os.Args[0])

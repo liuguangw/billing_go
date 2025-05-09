@@ -6,7 +6,7 @@ import (
 	"github.com/liuguangw/billing_go/common"
 )
 
-//登录错误定义
+// 登录错误定义
 var (
 	// ErrorLoginUserNotFound 登录的用户不存在
 	ErrorLoginUserNotFound = errors.New("login user not found")
@@ -18,7 +18,7 @@ var (
 	ErrorLoginAccountOnline = errors.New("account role is online")
 )
 
-//CheckLogin 验证登录
+// CheckLogin 验证登录
 func CheckLogin(db *sql.DB, onlineUsers map[string]*common.ClientInfo, username, password string) error {
 	account, err := GetAccountByUsername(db, username)
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-//allowAddr 判断是否允许此IP连接
+// allowAddr 判断是否允许此IP连接
 func (h *ConnHandle) allowAddr(clientAddr string) bool {
 	ipAddr := clientAddr[:strings.LastIndex(clientAddr, ":")]
 	// 当配置的白名单为空时,表示允许所有ip连接

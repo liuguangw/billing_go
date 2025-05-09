@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-//Account 用户信息结构
+// Account 用户信息结构
 type Account struct {
 	ID       int32          //账号id
 	Name     string         //用户名
