@@ -3,8 +3,9 @@ package bhandler
 import (
 	"bytes"
 	"context"
-	"github.com/liuguangw/billing_go/common"
 	"strconv"
+
+	"github.com/liuguangw/billing_go/common"
 )
 
 // CommandHandler 处理发送过来的命令
@@ -24,7 +25,7 @@ func (h *CommandHandler) GetResponse(request *common.BillingPacket) *common.Bill
 	response.OpData = []byte{0, 0}
 	//./billing show_users
 	//获取billing中用户列表状态
-	if bytes.Compare(request.OpData, []byte("show_users")) == 0 {
+	if bytes.Equal(request.OpData, []byte("show_users")) {
 		h.showUsers(response)
 	} else {
 		//./billing stop

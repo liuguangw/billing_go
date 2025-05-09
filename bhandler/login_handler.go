@@ -1,7 +1,9 @@
 package bhandler
 
 import (
+	"encoding/hex"
 	"fmt"
+
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
@@ -29,6 +31,7 @@ const (
 type LoginHandler struct {
 	Resource         *common.HandlerResource
 	AutoReg          bool //自动注册
+	BillType         int  //billing类型
 	MaxClientCount   int  //最多允许进入的用户数量(0表示无限制)
 	PcMaxClientCount int  //每台电脑最多允许进入的用户数量(0表示无限制)
 }
@@ -42,19 +45,45 @@ func (*LoginHandler) GetType() byte {
 func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
 	packetReader := services.NewPacketDataReader(request.OpData)
-	//用户名
-	usernameLength := packetReader.ReadByteValue()
-	tmpLength := int(usernameLength)
-	username := packetReader.ReadBytes(tmpLength)
-	//密码
-	tmpLength = int(packetReader.ReadByteValue())
-	password := string(packetReader.ReadBytes(tmpLength))
-	//登录IP
-	tmpLength = int(packetReader.ReadByteValue())
-	loginIP := string(packetReader.ReadBytes(tmpLength))
-	//跳过level,密码卡数据
-	packetReader.Skip(2 + 6 + 6)
-	macMd5 := string(packetReader.ReadBytes(32))
+	var (
+		usernameLength byte   //用户名长度
+		username       []byte //用户名
+		password       string //密码
+		loginIP        string //登录IP
+		macMd5         string //mac哈希
+	)
+	if h.BillType == common.BillTypeCommon {
+		//用户名
+		usernameLength = packetReader.ReadByteValue()
+		tmpLength := int(usernameLength)
+		username = packetReader.ReadBytes(tmpLength)
+		//密码
+		tmpLength = int(packetReader.ReadByteValue())
+		password = string(packetReader.ReadBytes(tmpLength))
+		//登录IP
+		tmpLength = int(packetReader.ReadByteValue())
+		loginIP = string(packetReader.ReadBytes(tmpLength))
+		//跳过level,密码卡数据
+		packetReader.Skip(2 + 6 + 6)
+		macMd5 = string(packetReader.ReadBytes(32))
+	} else {
+		//怀旧版
+		packetReader.Skip(4)
+		//用户名
+		usernameLength = packetReader.ReadByteValue()
+		tmpLength := int(usernameLength)
+		username = packetReader.ReadBytes(tmpLength)
+		//登录IP
+		tmpLength = int(packetReader.ReadByteValue())
+		loginIP = string(packetReader.ReadBytes(tmpLength))
+		packetReader.Skip(46)
+		//mac
+		tmpLength = int(packetReader.ReadByteValue())
+		macMd5 = string(packetReader.ReadBytes(tmpLength))
+		//password
+		passwordData := packetReader.ReadBytes(16)
+		password = hex.EncodeToString(passwordData)
+	}
 	//初始化
 	var (
 		loginResult    = loginCodeSuccess
@@ -131,6 +160,7 @@ func (h *LoginHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		//mIsPhoneMiBaoBind, 1u
 		//mIsPilferedAccount, 2u
 		extraData := make([]byte, 4+2+1+4+7+2)
+		extraData[6] = 'N'
 		//fake mAccTotalOnlineSecond: 100s
 		//extraData[10] = 100
 		for i := 11; i < 18; i++ {

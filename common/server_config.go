@@ -1,5 +1,13 @@
 package common
 
+// billing类型定义
+const (
+	// 经典
+	BillTypeCommon = iota
+	// 怀旧
+	BillTypeHuaiJiu
+)
+
 // ServerConfig billing服务配置
 type ServerConfig struct {
 	IP               string   //billing服务器listen的IP

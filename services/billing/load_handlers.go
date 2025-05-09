@@ -2,6 +2,7 @@ package billing
 
 import (
 	"context"
+
 	"github.com/liuguangw/billing_go/bhandler"
 	"github.com/liuguangw/billing_go/common"
 )
@@ -35,6 +36,7 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 		&bhandler.LoginHandler{
 			Resource:         resource,
 			AutoReg:          s.config.AutoReg,
+			BillType:         s.config.BillType,
 			MaxClientCount:   s.config.MaxClientCount,
 			PcMaxClientCount: s.config.PcMaxClientCount,
 		},

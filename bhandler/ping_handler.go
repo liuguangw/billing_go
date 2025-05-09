@@ -34,6 +34,6 @@ func (h *PingHandler) GetResponse(request *common.BillingPacket) *common.Billing
 			zap.Uint16("playerCount", playerCount))
 	}
 	//Packets::BLRetKeepLive
-	response.OpData = []byte{0x01, 0x00}
+	response.OpData = []byte{0, 0}
 	return response
 }

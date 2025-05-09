@@ -14,6 +14,9 @@ var (
 	ErrorPacketInvalid = errors.New("invalid data packet")
 )
 
+// billing包头部标识
+var BillingPacketHead = [2]byte{0xAA, 0x55}
+
 // packetMinSize 数据包最短长度
 const packetMinSize = 9
 
@@ -44,8 +47,8 @@ func ReadBillingPacket(binaryData []byte) (*BillingPacket, error) {
 		return nil, ErrorPacketNotFull
 	}
 	//检测头部标识
-	packetHeader := []byte{0xAA, 0x55}
-	if bytes.Compare(packetHeader, binaryData[:2]) != 0 {
+	packetHeader := BillingPacketHead[:]
+	if !bytes.Equal(packetHeader, binaryData[:2]) {
 		return nil, ErrorPacketInvalid
 	}
 	offset := 2
@@ -90,7 +93,7 @@ func (packet *BillingPacket) PackData() []byte {
 	OpDataLength := len(packet.OpData)
 	binaryData := make([]byte, 0, OpDataLength+packetMinSize)
 	//头部标识
-	packetHeader := []byte{0xAA, 0x55}
+	packetHeader := BillingPacketHead[:]
 	binaryData = append(binaryData, packetHeader...)
 	//写入长度 u2
 	lengthP := 3 + OpDataLength
