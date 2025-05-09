@@ -6,8 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/liuguangw/billing_go/common"
 )
 
 // Run 运行billing
@@ -28,12 +26,6 @@ func (s *Server) Run(logFilePath string) error {
 	//初始化数据库连接
 	if err := s.initDatabase(); err != nil {
 		s.logger.Fatal("init database connection failed: " + err.Error())
-	}
-	//初始化头部标识
-	if s.config.BillType == common.BillTypeCommon {
-		common.BillingPacketHead = [2]byte{0xAA, 0x55}
-	} else if s.config.BillType == common.BillTypeHuaiJiu {
-		common.BillingPacketHead = [2]byte{0x55, 0xAA}
 	}
 	//标记为已启动
 	s.running = true

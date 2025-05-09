@@ -2,11 +2,12 @@ package billing
 
 import (
 	"database/sql"
+	"net"
+	"os"
+
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/services"
 	"go.uber.org/zap"
-	"net"
-	"os"
 )
 
 // Server billing 服务
@@ -27,6 +28,8 @@ func NewServer() (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	//初始化头部标识
+	common.InitBillingPacketHead(byte(serverConfig.BillType))
 	return &Server{config: serverConfig}, nil
 }
 

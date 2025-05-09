@@ -119,3 +119,12 @@ func (packet *BillingPacket) String() string {
 		"MsgID: [%x, %x]\n"+
 		"Data: \n%s", packet.OpType, packet.MsgID[0], packet.MsgID[1], hex.Dump(packet.OpData))
 }
+
+// InitBillingPacketHead 初始化头部标识
+func InitBillingPacketHead(billType byte) {
+	if billType == BillTypeCommon {
+		BillingPacketHead = [2]byte{0xAA, 0x55}
+	} else if billType == BillTypeHuaiJiu {
+		BillingPacketHead = [2]byte{0x55, 0xAA}
+	}
+}
