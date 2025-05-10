@@ -121,7 +121,7 @@ func (packet *BillingPacket) String() string {
 }
 
 // InitBillingPacketHead 初始化头部标识
-func InitBillingPacketHead(billType byte) {
+func InitBillingPacketHead(billType int) {
 	if billType == BillTypeCommon {
 		BillingPacketHead = [2]byte{0xAA, 0x55}
 	} else if billType == BillTypeHuaiJiu {

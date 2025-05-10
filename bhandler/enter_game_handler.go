@@ -1,7 +1,10 @@
 package bhandler
 
 import (
+	"strconv"
+
 	"github.com/liuguangw/billing_go/common"
+	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -40,6 +43,8 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 		CharName: string(charName),
 	}
 	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
+	//角色id
+	charguid := packetReader.ReadInt()
 	//
 	h.Resource.Logger.Info("user [" + string(username) + "] " + string(charName) + " entered game")
 	//Packets::BLRetBillingStart
@@ -58,6 +63,18 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 		padLen = 16
 	}
 	extraData := make([]byte, padLen)
+	//检查角色是否为gm(仅限怀旧)
+	if h.BillType == common.BillTypeHuaiJiu {
+		if isGm, err := models.CheckIsGm(h.Resource.Db, charguid); err != nil {
+			h.Resource.Logger.Error("check is gm failed: " + err.Error())
+		} else {
+			// 登录的角色为gm
+			if isGm {
+				extraData[padLen-1] = 1
+				h.Resource.Logger.Info(string(charName) + "(guid: " + strconv.Itoa(charguid) + ") is gm")
+			}
+		}
+	}
 	opData = append(opData, extraData...)
 	response.OpData = opData
 	return response

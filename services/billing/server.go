@@ -29,7 +29,7 @@ func NewServer() (*Server, error) {
 		return nil, err
 	}
 	//初始化头部标识
-	common.InitBillingPacketHead(byte(serverConfig.BillType))
+	common.InitBillingPacketHead(serverConfig.BillType)
 	return &Server{config: serverConfig}, nil
 }
 
