@@ -51,6 +51,9 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 			Resource: resource,
 		},
 		&bhandler.KickHandler{},
+		&bhandler.PrizeFetchHandler{
+			Resource: resource,
+		},
 		&bhandler.CostLogHandler{
 			Resource: resource,
 		},

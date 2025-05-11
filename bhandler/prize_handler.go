@@ -1,6 +1,8 @@
 package bhandler
 
 import (
+	"strconv"
+
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
@@ -30,7 +32,10 @@ func (*PrizeHandler) GetType() byte {
 func (h *PrizeHandler) GetResponse(request *common.BillingPacket) *common.BillingPacket {
 	response := request.PrepareResponse()
 	packetReader := services.NewPacketDataReader(request.OpData)
-	prizeType := packetReader.ReadByteValue()
+	var prizeType byte
+	if h.BillType == common.BillTypeHuaiJiu {
+		prizeType = packetReader.ReadByteValue()
+	}
 	//用户名
 	usernameLength := packetReader.ReadByteValue()
 	tmpLength := int(usernameLength)
@@ -53,23 +58,65 @@ func (h *PrizeHandler) GetResponse(request *common.BillingPacket) *common.Billin
 		CharName: string(charName),
 	}
 	markOnline(h.Resource.LoginUsers, h.Resource.OnlineUsers, h.Resource.MacCounters, string(username), clientInfo)
-	//世界id
-	worldId := packetReader.ReadLeUint16()
-	//角色id
-	charguid := packetReader.ReadLeInt()
-	if prizeType == prizeTypeCheck {
-		h.processCheck(username, worldId, charguid, response)
-	} else if prizeType == prizeTypeFetch {
-		//领取类型
-		fetchType := packetReader.ReadByteValue()
-		h.processFetch(fetchType, charName, username, worldId, charguid, response)
+	if h.BillType == common.BillTypeHuaiJiu {
+		//世界id
+		worldId := packetReader.ReadLeUint16()
+		//角色id
+		charguid := packetReader.ReadLeInt()
+		if prizeType == prizeTypeCheck {
+			h.processCheck(username, worldId, charguid, response)
+		} else if prizeType == prizeTypeFetch {
+			//领取类型
+			fetchType := packetReader.ReadByteValue()
+			h.processFetch(fetchType, charName, username, worldId, charguid, response)
+		}
+	} else {
+		h.processCheck1(username, response)
 	}
-	//debug
-	//h.Resource.Logger.Info("dump response\n" + response.String())
 	return response
 }
 
-// processCheck 处理查询奖励
+// processCheck1 处理查询奖励(经典端)
+func (h *PrizeHandler) processCheck1(username []byte, response *common.BillingPacket) {
+	var checkResult byte
+	prizeList, err := models.FindAccountPrizeList(h.Resource.Db, string(username), 0, 0, 30)
+	if err != nil {
+		checkResult = 3
+		h.Resource.Logger.Error("FindAccountPrizeList failed: " + err.Error())
+	}
+	//记录条数
+	prizeCount := len(prizeList)
+	if prizeCount == 0 {
+		//没有奖励可以领取
+		checkResult = 5
+	}
+	usernameLength := len(username)
+	opDataLength := usernameLength + 2
+	if checkResult == 0 {
+		opDataLength += (21*prizeCount + 1)
+	}
+	//Packets::LBLNewCheckPrize
+	opData := make([]byte, 0, opDataLength)
+	opData = append(opData, byte(usernameLength))
+	opData = append(opData, username...)
+	opData = append(opData, checkResult)
+	if checkResult == 0 {
+		opData = append(opData, byte(prizeCount))
+		for _, prizeItem := range prizeList {
+			//itemid
+			itemIdData := make([]byte, 20)
+			itemIdStrData := []byte("item " + strconv.Itoa(prizeItem.ItemID))
+			copy(itemIdData, itemIdStrData)
+			opData = append(opData, itemIdData...)
+			//itemNum
+			itemNum := prizeItem.ItemNum
+			opData = append(opData, byte(itemNum&0xFF))
+		}
+	}
+	response.OpData = opData
+}
+
+// processCheck 处理怀旧端查询奖励
 func (h *PrizeHandler) processCheck(username []byte, worldId uint16, charguid int, response *common.BillingPacket) {
 	usernameLength := len(username)
 	opData := make([]byte, 0, usernameLength+15)
@@ -102,7 +149,7 @@ func (h *PrizeHandler) processCheck(username []byte, worldId uint16, charguid in
 	response.OpData = opData
 }
 
-// processFetch 处理领取奖励
+// processFetch 处理怀旧端领取奖励
 func (h *PrizeHandler) processFetch(fetchType byte, charName, username []byte, worldId uint16, charguid int, response *common.BillingPacket) {
 	inputWorldId := 0
 	inputCharguid := 0
@@ -128,7 +175,7 @@ func (h *PrizeHandler) processFetch(fetchType byte, charName, username []byte, w
 	if prizeCount > 0 {
 		opDataLength += (22*prizeCount + 1)
 	}
-	opData := make([]byte, 0, usernameLength+3)
+	opData := make([]byte, 0, opDataLength)
 	opData = append(opData, prizeTypeFetchRet, byte(usernameLength))
 	opData = append(opData, username...)
 	var fetchResult byte

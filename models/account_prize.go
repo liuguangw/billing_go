@@ -6,6 +6,22 @@ import (
 )
 
 // AccountPrize 对应奖励表
+//
+// 创建表的SQL语句
+/*
+CREATE TABLE account_prize (
+  id bigint(20) NOT NULL AUTO_INCREMENT,
+  account varchar(50) NOT NULL COMMENT '账号',
+  world int(11) NOT NULL DEFAULT '0' COMMENT '世界ID',
+  charguid int(10) unsigned NOT NULL DEFAULT '0' COMMENT '玩家GUID',
+  itemid int(10) unsigned NOT NULL DEFAULT '0' COMMENT '物品ID',
+  itemnum int(11) NOT NULL COMMENT '物品数量',
+  isget smallint(6) NOT NULL COMMENT '是否领取了',
+  validtime int(11) NOT NULL COMMENT '有效期，时间格式为unix时间',
+  PRIMARY KEY (id) USING BTREE,
+  UNIQUE KEY id (id) USING BTREE
+)
+*/
 type AccountPrize struct {
 	ID        int64
 	Account   string

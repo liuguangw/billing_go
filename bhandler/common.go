@@ -10,6 +10,7 @@ const (
 	packetTypeLogout       byte = 0xA4
 	packetTypeKeep         byte = 0xA6
 	packetTypeKick         byte = 0xA9
+	packetTypePrizeFetch   byte = 0xC3
 	packetTypeCostLog      byte = 0xC5
 	packetTypePrizeCard    byte = 0xC6
 	packetTypeConvertPoint byte = 0xE1
