@@ -11,7 +11,7 @@ func (h *ConnHandle) writePacketToClient(tcpConn *net.TCPConn, packetChan <-chan
 	for response := range packetChan {
 		responseData := response.PackData()
 		//debug 测试粘包时是否有问题
-		/*if response.OpType == 0xE4 {
+		/*if response.OpType == 0xC6 {
 			responseData = append(responseData, responseData...)
 		}*/
 		if _, err := tcpConn.Write(responseData); err != nil {

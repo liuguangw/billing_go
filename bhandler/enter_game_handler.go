@@ -80,9 +80,12 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 		if accountPrize, err := models.FindFirstAccountPrize(h.Resource.Db, string(username)); err != nil {
 			h.Resource.Logger.Error("FindFirstAccountPrize failed: " + err.Error())
 		} else {
-			state = 1
-			if accountPrize.Charguid != 0 {
-				state = 2
+			//有奖励记录
+			if accountPrize != nil {
+				state = 1
+				if accountPrize.Charguid != 0 {
+					state = 2
+				}
 			}
 		}
 		if state > 0 {

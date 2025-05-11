@@ -11,6 +11,7 @@ const (
 	packetTypeKeep         byte = 0xA6
 	packetTypeKick         byte = 0xA9
 	packetTypeCostLog      byte = 0xC5
+	packetTypePrizeCard    byte = 0xC6
 	packetTypeConvertPoint byte = 0xE1
 	packetTypeQueryPoint   byte = 0xE2
 	packetTypePrize        byte = 0xE4

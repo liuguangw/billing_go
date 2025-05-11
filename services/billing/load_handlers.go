@@ -54,6 +54,10 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 		&bhandler.CostLogHandler{
 			Resource: resource,
 		},
+		&bhandler.PrizeCardHandler{
+			Resource: resource,
+			BillType: s.config.BillType,
+		},
 		&bhandler.ConvertPointHandler{
 			Resource: resource,
 			BillType: s.config.BillType,
