@@ -71,8 +71,22 @@ func (h *EnterGameHandler) GetResponse(request *common.BillingPacket) *common.Bi
 			// 登录的角色为gm
 			if isGm {
 				extraData[padLen-1] = 1
-				h.Resource.Logger.Info(string(charName) + "(guid: " + strconv.Itoa(charguid) + ") is gm")
+				h.Resource.Logger.Info(string(charName) + "(guid: " + strconv.Itoa(charguid) + ") is GM")
 			}
+		}
+		//检测活动奖励状态
+		var state byte
+		//检测角色活动奖励
+		if accountPrize, err := models.FindFirstAccountPrize(h.Resource.Db, string(username)); err != nil {
+			h.Resource.Logger.Error("FindFirstAccountPrize failed: " + err.Error())
+		} else {
+			state = 1
+			if accountPrize.Charguid != 0 {
+				state = 2
+			}
+		}
+		if state > 0 {
+			extraData[padLen-2] = state
 		}
 	}
 	opData = append(opData, extraData...)

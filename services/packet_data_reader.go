@@ -27,14 +27,37 @@ func (r *PacketDataReader) ReadUint16() uint16 {
 	return targetValue
 }
 
+// ReadLeUint16 以小端序读取两个字节,转换为unit16
+func (r *PacketDataReader) ReadLeUint16() uint16 {
+	var targetValue = uint16(r.binaryData[r.offset])
+	r.offset++
+	targetValue += (uint16(r.binaryData[r.offset]) << 8)
+	r.offset++
+	return targetValue
+}
+
 // ReadInt 读取4个字节,转换为int
 func (r *PacketDataReader) ReadInt() int {
 	var targetValue int
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		tmpValue := int(r.binaryData[r.offset])
 		r.offset++
 		if i < 3 {
 			tmpValue <<= uint((3 - i) * 8)
+		}
+		targetValue += tmpValue
+	}
+	return targetValue
+}
+
+// ReadLeInt 以小端序读取一个int值
+func (r *PacketDataReader) ReadLeInt() int {
+	var targetValue int
+	for i := range 4 {
+		tmpValue := int(r.binaryData[r.offset])
+		r.offset++
+		if i > 0 {
+			tmpValue <<= uint(i * 8)
 		}
 		targetValue += tmpValue
 	}

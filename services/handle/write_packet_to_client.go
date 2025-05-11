@@ -1,8 +1,9 @@
 package handle
 
 import (
-	"github.com/liuguangw/billing_go/common"
 	"net"
+
+	"github.com/liuguangw/billing_go/common"
 )
 
 // writePacketToClient 从packetChan取出需要发送的billing包,发送给client
@@ -10,7 +11,7 @@ func (h *ConnHandle) writePacketToClient(tcpConn *net.TCPConn, packetChan <-chan
 	for response := range packetChan {
 		responseData := response.PackData()
 		//debug 测试粘包时是否有问题
-		/*if response.OpType == 0xA3 {
+		/*if response.OpType == 0xE4 {
 			responseData = append(responseData, responseData...)
 		}*/
 		if _, err := tcpConn.Write(responseData); err != nil {

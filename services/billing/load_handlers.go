@@ -63,6 +63,10 @@ func (s *Server) loadHandlers(cancel context.CancelFunc) {
 			PointFix: s.config.PointFix,
 			BillType: s.config.BillType,
 		},
+		&bhandler.PrizeHandler{
+			Resource: resource,
+			BillType: s.config.BillType,
+		},
 		&bhandler.RegisterHandler{
 			Resource: resource,
 		},

@@ -13,5 +13,6 @@ const (
 	packetTypeCostLog      byte = 0xC5
 	packetTypeConvertPoint byte = 0xE1
 	packetTypeQueryPoint   byte = 0xE2
+	packetTypePrize        byte = 0xE4
 	packetTypeRegister     byte = 0xF1
 )
