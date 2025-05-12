@@ -1,0 +1,62 @@
+# systemd 配置
+# 路径: /etc/systemd/system/billing.service
+# billing 文件夹路径: /home/billing
+#
+# systemd 命令
+# 启动 systemctl start billing.service
+# 停止 systemctl stop billing.service
+# 查看状态 systemctl status billing.service
+# 设置开机启动 systemctl enable billing.service
+# 取消开机启动 systemctl disable billing.service
+# 日志 journalctl -u billing.service
+
+[Unit]
+Description=tlbb billing Service
+#
+# After=network.target 
+# 依赖 mysqld 服务
+After=mysqld.service
+
+[Service]
+# (可选) 指定运行程序的用户
+# User=myappuser
+
+# (可选) 指定运行程序的用户组
+# Group=myappgroup
+
+# 程序的工作目录
+WorkingDirectory=/home/billing
+
+# 启动命令, 用 systemd 启动时不需要 -d 参数
+ExecStart=/home/billing/billing up
+# ExecReload=/bin/kill -HUP $MAINPID
+# ExecStop=/usr/local/bin/stop-my-custom-app
+
+# (默认) 如果你的程序启动后不 fork，并且主进程就是服务进程。
+# Type=simple
+
+# 如果你的程序启动后会 fork 一个子进程作为主服务进程，父进程退出。需要指定 PIDFile。
+# Type=forking
+# (Type=forking 时需要) 指向包含主进程PID的文件
+# PIDFile=/run/my-custom-app.pid 
+
+# 当程序非正常退出 (例如崩溃) 时自动重启
+Restart=on-failure
+
+# 总是重启 (除了正常停止)
+# Restart=always
+# 重启前等待的时间
+# RestartSec=5s
+
+# (可选) 环境变量
+# Environment="VAR1=value1"
+# EnvironmentFile=/etc/myapp-env.conf
+
+# (可选) 安全设置
+# PrivateTmp=true # 为服务提供私有的 /tmp 和 /var/tmp 目录
+# ProtectSystem=full # 使 /usr, /boot, /etc 等目录只读
+# NoNewPrivileges=true # 确保服务及其子进程不能获得新的权限
+
+[Install]
+# 表示这个服务应该在系统进入多用户模式时启动
+WantedBy=multi-user.target

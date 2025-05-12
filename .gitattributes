@@ -1,3 +1,4 @@
 *.go text eol=lf
 Makefile text eol=lf
+*.service text eol=lf
 *.bat text eol=crlf
