@@ -121,38 +121,17 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 		if h.BillType == common.BillTypeCommon {
 			leftPointU4 *= 1000
 		}
-		for i := range 4 {
-			tmpValue := leftPointU4
-			movePos := (3 - i) * 8
-			if movePos > 0 {
-				tmpValue >>= movePos
-			}
-			opData = append(opData, byte(tmpValue&0xff))
-		}
+		opData = services.AppendDataUint32(opData, uint32(leftPointU4))
 		//mGoodsTypeNum:u2
-		opData = append(opData, byte((mGoodsTypeNum&0xff00)>>8), byte(mGoodsTypeNum&0xff))
+		opData = services.AppendDataUint16(opData, mGoodsTypeNum)
 		// 写入mGoodsType:u4
-		for i := range 4 {
-			tmpValue := mGoodsType
-			movePos := (3 - i) * 8
-			if movePos > 0 {
-				tmpValue >>= movePos
-			}
-			opData = append(opData, byte(tmpValue&0xff))
-		}
+		opData = services.AppendDataUint32(opData, uint32(mGoodsType))
 		if h.BillType == common.BillTypeHuaiJiu {
 			//消耗的点数:u4
-			for i := range 4 {
-				tmpValue := needPoint
-				movePos := (3 - i) * 8
-				if movePos > 0 {
-					tmpValue >>= movePos
-				}
-				opData = append(opData, byte(tmpValue&0xff))
-			}
+			opData = services.AppendDataUint32(opData, uint32(needPoint))
 		} else {
 			//消耗的点数:u2
-			opData = append(opData, byte((needPoint&0xff00)>>8), byte(needPoint&0xff))
+			opData = services.AppendDataUint16(opData, uint16(needPoint))
 		}
 	}
 	response.OpData = opData

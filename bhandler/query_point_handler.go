@@ -58,14 +58,10 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	if h.BillType == common.BillTypeCommon {
 		accountPoint *= 1000
 	}
-	for i := range 4 {
-		tmpValue := accountPoint
-		movePos := (3 - i) * 8
-		if movePos > 0 {
-			tmpValue >>= movePos
-		}
-		opData = append(opData, byte(tmpValue&0xff))
+	if accountPoint < 0 {
+		accountPoint = 0
 	}
+	opData = services.AppendDataUint32(opData, uint32(accountPoint))
 	response.OpData = opData
 	return response
 }

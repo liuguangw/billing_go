@@ -183,41 +183,16 @@ func (h *PrizeHandler) processFetch(fetchType byte, charName, username []byte, w
 			//itemid
 			itemIdList = append(itemIdList, prizeItem.ID)
 			//id
-			for i := range 8 {
-				itemValue := prizeItem.ID
-				movePos := i * 8
-				if movePos > 0 {
-					itemValue >>= int64(movePos)
-				}
-				itemValue = itemValue & 0xFF
-				opData = append(opData, byte(itemValue))
-			}
+			opData = services.AppendDataLeUint64(opData, uint64(prizeItem.ID))
 			//world
-			opData = append(opData, byte(inputWorldId&0xFF), byte((inputWorldId>>8)&0xFF))
+			opData = services.AppendDataLeUint16(opData, uint16(inputWorldId))
 			opData = append(opData, padValue, 0xB2)
 			//charguid
-			for i := range 4 {
-				itemValue := inputCharguid
-				movePos := i * 8
-				if movePos > 0 {
-					itemValue >>= movePos
-				}
-				itemValue = itemValue & 0xFF
-				opData = append(opData, byte(itemValue))
-			}
+			opData = services.AppendDataLeUint32(opData, uint32(inputCharguid))
 			//itemid
-			for i := range 4 {
-				itemValue := prizeItem.ItemID
-				movePos := i * 8
-				if movePos > 0 {
-					itemValue >>= movePos
-				}
-				itemValue = itemValue & 0xFF
-				opData = append(opData, byte(itemValue))
-			}
+			opData = services.AppendDataLeUint32(opData, uint32(prizeItem.ItemID))
 			//itemNum
-			itemNum := prizeItem.ItemNum
-			opData = append(opData, byte(itemNum&0xFF), byte((itemNum>>8)&0xFF))
+			opData = services.AppendDataLeUint16(opData, uint16(prizeItem.ItemNum))
 			h.Resource.Logger.Info("add prize item for "+string(charName)+": ",
 				zap.Int64("id", prizeItem.ID),
 				zap.String("username", string(username)),
