@@ -7,7 +7,6 @@ import (
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
 	"go.uber.org/zap"
-	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // PrizeFetchHandler 活动奖励领取(仅经典), 脚本ID: 808062
@@ -33,13 +32,7 @@ func (h *PrizeFetchHandler) GetResponse(request *common.BillingPacket) *common.B
 	loginIP := string(packetReader.ReadBytes(tmpLength))
 	//角色名
 	tmpLength = int(packetReader.ReadByteValue())
-	charNameGbkData := packetReader.ReadBytes(tmpLength)
-	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
-	charName, err := gbkDecoder.Bytes(charNameGbkData)
-	if err != nil {
-		h.Resource.Logger.Error("decode char name failed: " + err.Error())
-		charName = []byte("?")
-	}
+	charName := packetReader.ReadGbkString(tmpLength)
 	//标记在线
 	clientInfo := &common.ClientInfo{
 		IP:       loginIP,

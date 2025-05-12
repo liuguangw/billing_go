@@ -1,5 +1,7 @@
 package services
 
+import "golang.org/x/text/encoding/simplifiedchinese"
+
 // PacketDataReader 用于读取[]byte数据的工具
 type PacketDataReader struct {
 	binaryData []byte
@@ -68,6 +70,18 @@ func (r *PacketDataReader) ReadLeInt() int {
 func (r *PacketDataReader) ReadBytes(n int) []byte {
 	r.offset += n
 	return r.binaryData[r.offset-n : r.offset]
+}
+
+// ReadGbkString 读取GBK字符串
+func (r *PacketDataReader) ReadGbkString(n int) []byte {
+	gbkData := r.ReadBytes(n)
+	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
+	strData, err := gbkDecoder.Bytes(gbkData)
+	if err != nil {
+		//解码失败
+		strData = []byte("?")
+	}
+	return strData
 }
 
 // Skip 跳过一部分字节

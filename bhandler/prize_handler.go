@@ -7,7 +7,6 @@ import (
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
 	"go.uber.org/zap"
-	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 const (
@@ -45,13 +44,7 @@ func (h *PrizeHandler) GetResponse(request *common.BillingPacket) *common.Billin
 	loginIP := string(packetReader.ReadBytes(tmpLength))
 	//角色名
 	tmpLength = int(packetReader.ReadByteValue())
-	charNameGbkData := packetReader.ReadBytes(tmpLength)
-	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
-	charName, err := gbkDecoder.Bytes(charNameGbkData)
-	if err != nil {
-		h.Resource.Logger.Error("decode char name failed: " + err.Error())
-		charName = []byte("?")
-	}
+	charName := packetReader.ReadGbkString(tmpLength)
 	//标记在线
 	clientInfo := &common.ClientInfo{
 		IP:       loginIP,

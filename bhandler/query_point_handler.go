@@ -6,7 +6,6 @@ import (
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
-	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // QueryPointHandler 查询点数
@@ -34,13 +33,7 @@ func (h *QueryPointHandler) GetResponse(request *common.BillingPacket) *common.B
 	loginIP := string(packetReader.ReadBytes(tmpLength))
 	//角色名
 	tmpLength = int(packetReader.ReadByteValue())
-	charNameGbkData := packetReader.ReadBytes(tmpLength)
-	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
-	charName, err := gbkDecoder.Bytes(charNameGbkData)
-	if err != nil {
-		h.Resource.Logger.Error("decode char name failed: " + err.Error())
-		charName = []byte("?")
-	}
+	charName := packetReader.ReadGbkString(tmpLength)
 	account, err := models.GetAccountByUsername(h.Resource.Db, string(username))
 	if err != nil {
 		h.Resource.Logger.Error("get account:" + string(username) + " info failed: " + err.Error())

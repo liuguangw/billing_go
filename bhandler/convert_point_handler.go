@@ -6,7 +6,6 @@ import (
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/models"
 	"github.com/liuguangw/billing_go/services"
-	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // 兑换结果
@@ -42,13 +41,7 @@ func (h *ConvertPointHandler) GetResponse(request *common.BillingPacket) *common
 	loginIP := string(packetReader.ReadBytes(tmpLength))
 	//角色名
 	tmpLength = int(packetReader.ReadByteValue())
-	charNameGbkData := packetReader.ReadBytes(tmpLength)
-	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
-	charName, err := gbkDecoder.Bytes(charNameGbkData)
-	if err != nil {
-		h.Resource.Logger.Error("decode char name failed: " + err.Error())
-		charName = []byte("?")
-	}
+	charName := packetReader.ReadGbkString(tmpLength)
 	//orderId 21u
 	orderIDBytes := packetReader.ReadBytes(21)
 	mGoodsTypeNum := packetReader.ReadUint16() //始终为1

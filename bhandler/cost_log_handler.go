@@ -3,7 +3,6 @@ package bhandler
 import (
 	"github.com/liuguangw/billing_go/common"
 	"github.com/liuguangw/billing_go/services"
-	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // CostLogHandler 元宝消息记录
@@ -32,13 +31,7 @@ func (h *CostLogHandler) GetResponse(request *common.BillingPacket) *common.Bill
 	username := packetReader.ReadBytes(tmpLength)
 	//角色名
 	tmpLength = int(packetReader.ReadByteValue())
-	charNameGbkData := packetReader.ReadBytes(tmpLength)
-	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
-	charName, err := gbkDecoder.Bytes(charNameGbkData)
-	if err != nil {
-		h.Resource.Logger.Error("decode char name failed: " + err.Error())
-		charName = []byte("?")
-	}
+	charName := packetReader.ReadGbkString(tmpLength)
 	//skip level(u2)
 	packetReader.Skip(2)
 	//登录IP
