@@ -5,6 +5,7 @@
 ## 运行环境要求
 
 支持以下任意一种运行环境
+
 - Linux (Linux 内核版本 2.6.32 或者以上版本)
 
 - Windows 10, Server 2016 或者更高版本
@@ -25,50 +26,52 @@
 # 记录Login服务器日志的方法
 
 # 原命令
-./Login >/dev/null 2>&1 &	
+./Login >/dev/null 2>&1 &
 
 # 修改/dev/null 为 /home/login.log
 # 修改后,日志文件会保存到/home/login.log
-./Login >/home/login.log 2>&1 &	
+./Login >/home/login.log 2>&1 &
 ```
 
 ## 获取程序包
 
-  有以下两种方式获取此程序包。
+有以下两种方式获取此程序包。
 
-  ### 1.使用我编译好的版本
+### 1.使用我编译好的版本
 
-  [点击这里](https://github.com/liuguangw/billing_go/releases)查看我编译好的各版本, 可能没有最新的编译版本
+[点击这里](https://github.com/liuguangw/billing_go/releases)查看我编译好的各版本, 可能没有最新的编译版本
 
-  ### 2.手工编译
-  如果你想亲自进行编译，需要确保你的操作系统满足以下条件
+### 2.手工编译
 
- - 设备已连接网络
- - 已安装Git
- - 已安装make(仅linux需要)
- - 已安装Go 1.23 或者更高版本
+如果你想亲自进行编译，需要确保你的操作系统满足以下条件
 
-  linux 使用 make 进行编译
-   ```bash
-   # make命令说明
-   
-   # 构建
-   make
-   
-   # 清理
-   make clean
-   
-   # 构建并且打包32位
-   make x32
-   
-   # 构建并且打包64位
-   make x64
-   
-   # 构建并且打包所有架构
-   make all
-   ```
+- 设备已连接网络
+- 已安装 Git
+- 已安装 make(仅 linux 需要)
+- 已安装 Go 1.23 或者更高版本
 
-  windows 下直接双击build.bat进行编译
+linux 使用 make 进行编译
+
+```bash
+# make命令说明
+
+# 构建
+make
+
+# 清理
+make clean
+
+# 构建并且打包32位
+make x32
+
+# 构建并且打包64位
+make x64
+
+# 构建并且打包所有架构
+make all
+```
+
+windows 下直接双击 build.bat 进行编译
 
 ## 相关文件说明
 
@@ -82,7 +85,7 @@ config.yaml   - 配置文件
 
 配置文件和程序必须放在同一个目录下，配置文件支持两种格式`yaml`或者`json`，配置文件名称为`config.yaml`或者`config.json`，如果两个文件都存在，则`yaml`格式优先。
 
-### yaml格式的配置示例
+### yaml 格式的配置示例
 
 ```yaml
 # #后面的为注释
@@ -129,9 +132,11 @@ max_client_count: 500
 #
 #每台电脑最多可以同时登录的用户数量限制,如果为0则表示无上限
 pc_max_client_count: 3
+# billing类型 0经典 1怀旧
+bill_type: 0
 ```
 
-### json格式的配置示例
+### json 格式的配置示例
 
 ```json
 {
@@ -147,18 +152,18 @@ pc_max_client_count: 3
   "allow_ips": [],
   "point_fix": 0,
   "max_client_count": 500,
-  "pc_max_client_count": 3
+  "pc_max_client_count": 3,
+  "bill_type": 0
 }
 ```
 
-> 如果biiling和服务端位于同一台服务器的情况下，建议billing的IP使用127.0.0.1,这样可以避免绕一圈外网
+> 如果 biiling 和服务端位于同一台服务器的情况下，建议 billing 的 IP 使用 127.0.0.1,这样可以避免绕一圈外网
 >
 > 本项目中附带的配置文件各项值为其默认值,如果你的配置中的字段的值与默认值相同,则可以省略相同的字段配置
->
 
-将`billing` (Windows服务器则是`billing.exe`)和配置文件放置于同一目录下
+将`billing` (Windows 服务器则是`billing.exe`)和配置文件放置于同一目录下
 
-修改游戏服务器的配置文件`....../tlbb/Server/Config/ServerInfo.ini`中billing的配置
+修改游戏服务器的配置文件`....../tlbb/Server/Config/ServerInfo.ini`中 billing 的配置
 
 ```ini
 #........
@@ -171,14 +176,15 @@ Port0=12680
 #.........
 ```
 
-最后启动游戏服务端、启动billing即可
+最后启动游戏服务端、启动 billing 即可
 
 ## 启动与停止
-Linux和Windows下的操作分别如下
+
+Linux 和 Windows 下的操作分别如下
 
 ### 启动
 
-Linux下启动billing方法(**前台模式**)
+Linux 下启动 billing 方法(**前台模式**)
 
 ```bash
 #进入billing所在文件夹,比如/home
@@ -189,7 +195,8 @@ chmod +x ./billing
 ./billing
 ```
 
-Linux以守护进程后台运行billing的方法(**daemon模式**)
+Linux 以守护进程后台运行 billing 的方法(**daemon 模式**)
+
 ```bash
 #进入billing所在文件夹,比如/home
 cd /home
@@ -199,11 +206,14 @@ chmod +x ./billing
 ./billing up -d
 ```
 
-Windows下,直接双击`billing.exe`即可
+Linux 以 **systemd** 方式运行 billing 服务的方法:
+参考文件 [billing.service](billing.service)
+
+Windows 下,直接双击`billing.exe`即可
 
 ### 停止
 
-停止billing命令
+停止 billing 命令
 
 ```bash
 # 使用stop命令
@@ -213,4 +223,4 @@ Windows下,直接双击`billing.exe`即可
 kill -SIGTERM $(pgrep -f billing)
 ```
 
-如果是前台模式，可以使用Ctrl + C 组合键停止服务器
+如果是前台模式，可以使用 Ctrl + C 组合键停止服务器
